@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProMix DJ Studio — User Manual</title>
+<style>
+:root {
+  --accent: #7c3aed;
+  --accent2: #4f46e5;
+  --neon: #a78bfa;
+  --neon2: #60a5fa;
+  --neon3: #34d399;
+  --deck-a: #7c3aed;
+  --deck-b: #0ea5e9;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --bg: #f8f7ff;
+  --sidebar: #1a1a2e;
+  --text: #1e1b4b;
+  --text2: #4b5563;
+  --border: #e5e7eb;
+  --tip: #ede9fe;
+  --warn: #fef3c7;
+  --note: #dbeafe;
+  --success: #d1fae5;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:15px;line-height:1.7}
+
+/* SIDEBAR */
+#sidebar{width:280px;min-height:100vh;background:var(--sidebar);color:#e2e8f0;position:fixed;top:0;left:0;overflow-y:auto;padding-bottom:40px;z-index:10}
+#sidebar-logo{padding:24px 20px 16px;border-bottom:1px solid rgba(255,255,255,0.1)}
+#sidebar-logo h1{font-size:1.2rem;font-weight:900;background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+#sidebar-logo p{font-size:.7rem;color:#94a3b8;letter-spacing:2px;margin-top:2px}
+#sidebar nav{padding:16px 0}
+.nav-section{padding:8px 20px 4px;font-size:.65rem;letter-spacing:2px;color:#64748b;font-weight:700;text-transform:uppercase}
+.nav-item{display:block;padding:8px 20px 8px 28px;color:#cbd5e1;text-decoration:none;font-size:.85rem;border-left:3px solid transparent;transition:.15s}
+.nav-item:hover{color:#fff;background:rgba(255,255,255,0.05);border-left-color:var(--neon)}
+.nav-item.active{color:#a78bfa;border-left-color:#a78bfa;background:rgba(167,139,250,0.1)}
+.nav-sub{padding-left:44px;font-size:.8rem;color:#94a3b8}
+.nav-sub:hover{color:#e2e8f0}
+
+/* MAIN CONTENT */
+#content{margin-left:280px;flex:1;max-width:900px;padding:48px 48px 80px;min-width:0}
+@media(max-width:768px){#sidebar{display:none}#content{margin-left:0;padding:24px 20px}}
+
+/* TYPOGRAPHY */
+h1.page-title{font-size:2.4rem;font-weight:900;color:var(--text);margin-bottom:8px;line-height:1.2}
+h1.page-title span{background:linear-gradient(135deg,var(--accent),var(--neon2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.subtitle{font-size:1.05rem;color:var(--text2);margin-bottom:40px;padding-bottom:24px;border-bottom:2px solid var(--border)}
+h2{font-size:1.6rem;font-weight:800;color:var(--text);margin:48px 0 16px;padding-bottom:8px;border-bottom:2px solid var(--border);scroll-margin-top:24px}
+h2::before{content:'';display:inline-block;width:4px;height:1.4rem;background:linear-gradient(180deg,var(--accent),var(--neon2));border-radius:2px;margin-right:12px;vertical-align:middle}
+h3{font-size:1.15rem;font-weight:700;color:var(--text);margin:28px 0 10px;scroll-margin-top:24px}
+h4{font-size:.95rem;font-weight:700;color:var(--accent);margin:18px 0 6px;text-transform:uppercase;letter-spacing:.5px}
+p{margin-bottom:14px;color:var(--text2)}
+strong{color:var(--text)}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+ul,ol{padding-left:24px;margin-bottom:14px;color:var(--text2)}
+li{margin-bottom:6px}
+code{background:#f1f0ff;color:var(--accent);padding:2px 6px;border-radius:4px;font-family:monospace;font-size:.9em;border:1px solid #e0dcff}
+
+/* CALLOUT BOXES */
+.tip,.warn,.note,.success{border-radius:10px;padding:14px 18px;margin:20px 0;font-size:.9rem;display:flex;gap:12px;align-items:flex-start}
+.tip{background:var(--tip);border-left:4px solid var(--accent)}
+.warn{background:var(--warn);border-left:4px solid var(--yellow)}
+.note{background:var(--note);border-left:4px solid var(--neon2)}
+.success{background:var(--success);border-left:4px solid var(--neon3)}
+.callout-icon{font-size:1.2rem;flex-shrink:0;margin-top:1px}
+.callout-body{flex:1}
+.callout-body strong{display:block;margin-bottom:4px}
+
+/* STEPS */
+.steps{counter-reset:step;margin:20px 0}
+.step{display:flex;gap:16px;margin-bottom:20px;align-items:flex-start}
+.step-num{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;font-weight:800;font-size:.9rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
+.step-body{flex:1}
+.step-body strong{display:block;font-size:1rem;color:var(--text);margin-bottom:4px}
+.step-body p{margin:0;font-size:.9rem}
+
+/* FEATURE TABLE */
+table{width:100%;border-collapse:collapse;margin:20px 0;font-size:.9rem}
+th{background:var(--sidebar);color:#e2e8f0;padding:10px 14px;text-align:left;font-size:.8rem;letter-spacing:.5px}
+td{padding:10px 14px;border-bottom:1px solid var(--border);color:var(--text2);vertical-align:top}
+tr:hover td{background:#f3f0ff}
+td:first-child{font-weight:600;color:var(--text);white-space:nowrap}
+
+/* KEYBOARD SHORTCUT TABLE */
+.kb-table td:first-child{font-family:monospace;background:#f1f0ff;color:var(--accent);border-radius:4px;text-align:center;width:80px}
+
+/* FEATURE BADGES */
+.badge{display:inline-block;padding:2px 8px;border-radius:20px;font-size:.7rem;font-weight:700;margin-left:6px;vertical-align:middle}
+.badge-a{background:#ede9fe;color:var(--deck-a)}
+.badge-b{background:#e0f2fe;color:var(--deck-b)}
+.badge-new{background:#d1fae5;color:#065f46}
+.badge-pro{background:#fef3c7;color:#92400e}
+
+/* INTERFACE DIAGRAM */
+.ui-diagram{background:var(--sidebar);border-radius:12px;padding:24px;margin:24px 0;font-family:monospace;font-size:.8rem;color:#e2e8f0;overflow-x:auto;line-height:1.8}
+.ui-a{color:#a78bfa}
+.ui-b{color:#60a5fa}
+.ui-m{color:#34d399}
+.ui-y{color:#fbbf24}
+
+/* COVER */
+.cover{background:linear-gradient(135deg,var(--sidebar) 0%,#2d1b69 100%);border-radius:16px;padding:40px;margin-bottom:48px;color:#fff;position:relative;overflow:hidden}
+.cover::before{content:'';position:absolute;top:-40px;right:-40px;width:300px;height:300px;border-radius:50%;background:rgba(167,139,250,0.1)}
+.cover::after{content:'';position:absolute;bottom:-60px;right:60px;width:200px;height:200px;border-radius:50%;background:rgba(96,165,250,0.08)}
+.cover h1{font-size:2.6rem;font-weight:900;position:relative}
+.cover h1 span{background:linear-gradient(135deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.cover p{color:#cbd5e1;margin-top:8px;font-size:1.05rem;position:relative}
+.cover .version{display:inline-block;background:rgba(167,139,250,0.2);border:1px solid rgba(167,139,250,0.3);border-radius:20px;padding:4px 14px;font-size:.8rem;color:#a78bfa;margin-top:16px;position:relative}
+
+/* TOC */
+.toc{background:#fff;border:1px solid var(--border);border-radius:12px;padding:24px 28px;margin:32px 0}
+.toc h3{margin:0 0 14px;font-size:1rem;color:var(--text)}
+.toc ol{margin:0;padding-left:20px}
+.toc li{margin-bottom:6px;font-size:.9rem}
+.toc a{color:var(--accent2)}
+
+/* PRINT */
+@media print{#sidebar{display:none}#content{margin-left:0;padding:24px}}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR NAV -->
+<div id="sidebar">
+  <div id="sidebar-logo">
+    <h1>ProMix DJ Studio</h1>
+    <p>USER MANUAL v1.0</p>
+  </div>
+  <nav>
+    <div class="nav-section">Getting Started</div>
+    <a class="nav-item" href="#overview">Overview</a>
+    <a class="nav-item" href="#requirements">System Requirements</a>
+    <a class="nav-item" href="#quickstart">Quick Start Guide</a>
+
+    <div class="nav-section">Interface</div>
+    <a class="nav-item" href="#interface">Interface Layout</a>
+    <a class="nav-item nav-sub" href="#header">Header Bar</a>
+    <a class="nav-item nav-sub" href="#search">Search Section</a>
+    <a class="nav-item nav-sub" href="#decks">The Decks</a>
+    <a class="nav-item nav-sub" href="#mixer">Mixer Center</a>
+    <a class="nav-item nav-sub" href="#effects">Effects Panel</a>
+    <a class="nav-item nav-sub" href="#stems">Stems Panel</a>
+    <a class="nav-item nav-sub" href="#timeline">Timeline</a>
+
+    <div class="nav-section">Core Features</div>
+    <a class="nav-item" href="#loading">Loading Tracks</a>
+    <a class="nav-item" href="#playback">Playback Controls</a>
+    <a class="nav-item" href="#bpm-key">BPM &amp; Key Detection</a>
+    <a class="nav-item" href="#camelot">Camelot Wheel</a>
+    <a class="nav-item" href="#eq">EQ &amp; Mixing</a>
+    <a class="nav-item" href="#crossfader">Crossfader</a>
+    <a class="nav-item" href="#fx">Effects</a>
+    <a class="nav-item" href="#hotcues">Hot Cues &amp; Loops</a>
+    <a class="nav-item" href="#sync">Sync &amp; Pitch</a>
+
+    <div class="nav-section">YouTube &amp; Download</div>
+    <a class="nav-item" href="#youtube">YouTube Search</a>
+    <a class="nav-item" href="#mp3download">Downloading MP3s</a>
+    <a class="nav-item" href="#apikey">Getting an API Key</a>
+
+    <div class="nav-section">Recording</div>
+    <a class="nav-item" href="#recording">Recording Your Mix</a>
+    <a class="nav-item" href="#export">Exporting</a>
+
+    <div class="nav-section">Advanced</div>
+    <a class="nav-item" href="#automix">Auto Mix</a>
+    <a class="nav-item" href="#stem-sep">Stem Separation</a>
+    <a class="nav-item" href="#keyboard">Keyboard Shortcuts</a>
+
+    <div class="nav-section">Tutorials</div>
+    <a class="nav-item" href="#tutorial1">Tutorial 1: First Mix</a>
+    <a class="nav-item" href="#tutorial2">Tutorial 2: Party Set</a>
+    <a class="nav-item" href="#tutorial3">Tutorial 3: YouTube to Mix</a>
+    <a class="nav-item" href="#tutorial4">Tutorial 4: Harmonic Mix</a>
+
+    <div class="nav-section">Reference</div>
+    <a class="nav-item" href="#faq">FAQ</a>
+    <a class="nav-item" href="#troubleshooting">Troubleshooting</a>
+  </nav>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="content">
+
+  <!-- COVER -->
+  <div class="cover">
+    <h1><span>ProMix</span> DJ Studio</h1>
+    <p>The Ultimate Browser-Based Party Mixer — Professional DJ Tools, Zero Installation</p>
+    <div class="version">Version 1.0 &nbsp;·&nbsp; User Manual</div>
+  </div>
+
+  <!-- TABLE OF CONTENTS -->
+  <div class="toc">
+    <h3>📋 Table of Contents</h3>
+    <ol>
+      <li><a href="#overview">Overview & Feature List</a></li>
+      <li><a href="#quickstart">Quick Start Guide</a></li>
+      <li><a href="#interface">Interface Layout</a></li>
+      <li><a href="#loading">Loading Tracks</a></li>
+      <li><a href="#playback">Playback Controls, Hot Cues & Loops</a></li>
+      <li><a href="#bpm-key">BPM & Key Detection</a></li>
+      <li><a href="#eq">EQ & Mixing</a></li>
+      <li><a href="#crossfader">Crossfader</a></li>
+      <li><a href="#fx">Effects</a></li>
+      <li><a href="#youtube">YouTube Search & MP3 Download</a></li>
+      <li><a href="#recording">Recording & Exporting Your Mix</a></li>
+      <li><a href="#automix">Auto Mix</a></li>
+      <li><a href="#stem-sep">Stem Separation</a></li>
+      <li><a href="#tutorial1">Step-by-Step Tutorials</a></li>
+      <li><a href="#keyboard">Keyboard Shortcuts</a></li>
+      <li><a href="#faq">FAQ & Troubleshooting</a></li>
+    </ol>
+  </div>
+
+  <!-- ═══════ OVERVIEW ═══════ -->
+  <h2 id="overview">1. Overview</h2>
+  <p><strong>ProMix DJ Studio</strong> is a fully self-contained DJ mixing application delivered as a single HTML file. Open it in any modern web browser — no software installation, no app store, no subscription. Everything runs locally on your machine using the Web Audio API.</p>
+  <p>It was designed by analyzing and improving upon the world's best DJ software: <strong>DJ.Studio</strong>, <strong>Algoriddim djay Pro</strong>, <strong>VirtualDJ</strong>, and <strong>Fadr</strong> — combining the best features of all four into one free, portable tool.</p>
+
+  <h3>Feature Summary</h3>
+  <table>
+    <tr><th>Feature</th><th>Description</th></tr>
+    <tr><td>Dual Decks</td><td>Two independent playback decks (A and B) with animated vinyl turntables</td></tr>
+    <tr><td>Waveform Display</td><td>Real-time audio waveform with playhead position and click-to-seek</td></tr>
+    <tr><td>BPM Detection</td><td>Automatic beats-per-minute analysis on every loaded track</td></tr>
+    <tr><td>Key Detection</td><td>Musical key detection mapped to Camelot Wheel notation</td></tr>
+    <tr><td>Camelot Wheel</td><td>Interactive SVG harmonic mixing guide — find compatible key transitions</td></tr>
+    <tr><td>3-Band EQ</td><td>Hi / Mid / Lo equalizer per deck with interactive rotary knobs</td></tr>
+    <tr><td>Crossfader</td><td>Linear, Scratch, and Smooth curve modes</td></tr>
+    <tr><td>5 Effects</td><td>Reverb, Delay, Filter, Flanger, Echo — all with parameter knobs</td></tr>
+    <tr><td>Hot Cues</td><td>8 hot cue points per deck — set and jump with one click</td></tr>
+    <tr><td>Loop Control</td><td>4-beat auto-loop with one button</td></tr>
+    <tr><td>Pitch / Sync</td><td>±8% pitch slider, key shift (±semitones), one-click BPM sync</td></tr>
+    <tr><td>Tap Tempo</td><td>Manual BPM entry by tapping the beat</td></tr>
+    <tr><td>Auto Mix</td><td>One-click automated BPM-synced crossfader transition</td></tr>
+    <tr><td>YouTube Search</td><td>Search by song or artist title, load results directly to a deck</td></tr>
+    <tr><td>MP3 Download</td><td>Download any YouTube track as MP3 via cobalt.tools</td></tr>
+    <tr><td>Mix Recording</td><td>Record the master output and download as an audio file</td></tr>
+    <tr><td>Timeline</td><td>Full-length waveform overview of both tracks with BPM beat grid</td></tr>
+    <tr><td>Stems Panel</td><td>Vocal / Drum / Bass / Melody volume controls + AI stem separation link</td></tr>
+    <tr><td>VU Meters</td><td>Color-coded level meters for both decks and master output</td></tr>
+  </table>
+
+  <!-- ═══════ REQUIREMENTS ═══════ -->
+  <h2 id="requirements">2. System Requirements</h2>
+  <table>
+    <tr><th>Item</th><th>Requirement</th></tr>
+    <tr><td>Browser</td><td>Google Chrome 90+, Firefox 88+, Microsoft Edge 90+, Safari 15+</td></tr>
+    <tr><td>Operating System</td><td>Windows 10/11, macOS 11+, Linux (any modern distro)</td></tr>
+    <tr><td>RAM</td><td>4 GB minimum, 8 GB recommended for large audio files</td></tr>
+    <tr><td>Audio Files</td><td>MP3, WAV, FLAC, OGG, AAC, M4A (any format your browser supports)</td></tr>
+    <tr><td>Internet</td><td>Required only for YouTube search and MP3 download</td></tr>
+    <tr><td>YouTube API Key</td><td>Optional — enables in-app search (free to obtain)</td></tr>
+  </table>
+
+  <div class="tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Best Experience</strong> Use Google Chrome for the best Web Audio API performance and broadest audio format support.</div>
+  </div>
+
+  <!-- ═══════ QUICK START ═══════ -->
+  <h2 id="quickstart">3. Quick Start Guide</h2>
+  <p>Get mixing in under 2 minutes:</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Open the file</strong><p>Download <code>dj-mixer.html</code> from GitHub. Double-click it — it opens in your default browser. No installation needed.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Load Track A</strong><p>Click the <strong>📂 Load</strong> button on <strong>Deck A</strong> (left side). Select any MP3 or audio file from your computer. The waveform will appear and BPM/key will be detected automatically.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Load Track B</strong><p>Click the <strong>📂 Load</strong> button on <strong>Deck B</strong> (right side). Load a second track.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Play Deck A</strong><p>Press the large green <strong>▶ Play</strong> button on Deck A, or press <code>Space</code> on your keyboard. The vinyl will spin and audio plays.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Sync and mix</strong><p>Press <strong>SYNC</strong> on Deck B to match its tempo to Deck A. Press Play on Deck B. Slide the <strong>crossfader</strong> from left to right to blend between tracks.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Record your mix</strong><p>Click <strong>● REC</strong> in the top bar before you start mixing. Click <strong>⏹ STOP REC</strong> when done. Click <strong>⬇ Download Mix</strong> to save the file locally.</p></div></div>
+  </div>
+
+  <div class="success">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body"><strong>You're mixing!</strong> That's all it takes for a basic mix. Read on to explore all the professional features.</div>
+  </div>
+
+  <!-- ═══════ INTERFACE ═══════ -->
+  <h2 id="interface">4. Interface Layout</h2>
+  <p>The ProMix DJ Studio interface is organized in a professional DJ layout with all controls accessible at a glance:</p>
+
+  <div class="ui-diagram">
+<span class="ui-y">┌─────────────────────────────────────────────────────────────────────┐</span>
+<span class="ui-y">│  ProMix DJ Studio  │  [API Key]  │  [● REC]  [⬇ Mix]  [Camelot]  [Auto Mix]  │</span>
+<span class="ui-y">├─────────────────────────────────────────────────────────────────────┤</span>
+<span class="ui-y">│  🔍 [Search bar...........]  [SEARCH]                              │</span>
+<span class="ui-y">│  [ Search Results / YouTube Results Panel ]                         │</span>
+<span class="ui-y">├───────────────────┬──────────────────────┬──────────────────────────┤</span>
+<span class="ui-a">│    DECK A         </span><span class="ui-m">│    MIXER CENTER      </span><span class="ui-b">│    DECK B               │</span>
+<span class="ui-a">│  ┌─────────────┐  </span><span class="ui-m">│  [EQ A]  [EQ B]      </span><span class="ui-b">│  ┌─────────────┐         │</span>
+<span class="ui-a">│  │  ◉ Vinyl   │  </span><span class="ui-m">│  Hi  Mid  Lo         </span><span class="ui-b">│  │  ◉ Vinyl   │         │</span>
+<span class="ui-a">│  └─────────────┘  </span><span class="ui-m">│                      </span><span class="ui-b">│  └─────────────┘         │</span>
+<span class="ui-a">│  ~~~Waveform~~~~  </span><span class="ui-m">│  [VU A] [VU M] [VU B]</span><span class="ui-b">│  ~~~Waveform~~~~         │</span>
+<span class="ui-a">│  BPM: 128  8A     </span><span class="ui-m">│  [Vol A] [Mst] [Vol B]</span><span class="ui-b">│  BPM: 130  8B            │</span>
+<span class="ui-a">│  [▶] [CUE] [SYNC] </span><span class="ui-m">│  ──── Crossfader ────</span><span class="ui-b">│  [▶] [CUE] [SYNC]        │</span>
+<span class="ui-a">│  [1][2][3][4][..] </span><span class="ui-m">│  [Auto Mix]          </span><span class="ui-b">│  [1][2][3][4][..]        │</span>
+<span class="ui-y">├───────────────────┴──────────────────────┴──────────────────────────┤</span>
+<span class="ui-y">│  FX: [REVERB ⚬⚬] [DELAY ⚬⚬] [FILTER ⚬⚬] [FLANGER ⚬⚬] [ECHO ⚬]   │</span>
+<span class="ui-y">├─────────────────────────────────────────────────────────────────────┤</span>
+<span class="ui-y">│  STEMS: [🎤 VOCALS] [🥁 DRUMS] [🎸 BASS] [🎹 MELODY]  [⚗ Separate] │</span>
+<span class="ui-y">├─────────────────────────────────────────────────────────────────────┤</span>
+<span class="ui-y">│  TIMELINE: [Deck A ████████░░░░░░░░░░]  [Deck B ░░░████████░░░░]   │</span>
+<span class="ui-y">└─────────────────────────────────────────────────────────────────────┘</span>
+  </div>
+
+  <h3 id="header">Header Bar</h3>
+  <table>
+    <tr><th>Control</th><th>Function</th></tr>
+    <tr><td>API Key field</td><td>Paste your YouTube Data API v3 key here to enable YouTube search</td></tr>
+    <tr><td>● REC button</td><td>Starts/stops recording the master audio output. Turns red and pulses when recording.</td></tr>
+    <tr><td>⬇ Download Mix</td><td>Downloads your recorded mix as a WebM audio file</td></tr>
+    <tr><td>⟳ Camelot Wheel</td><td>Opens the interactive harmonic mixing guide modal</td></tr>
+    <tr><td>⚡ Auto Mix</td><td>Automatically syncs BPM and performs a crossfader transition</td></tr>
+  </table>
+
+  <h3 id="search">Search Section</h3>
+  <p>Type any <strong>song title</strong>, <strong>artist name</strong>, or combination and click <strong>SEARCH</strong>. Results appear in a scrollable panel below. Each result has buttons to load it directly to Deck A or B, download as MP3, or open on YouTube.</p>
+
+  <h3 id="decks">The Decks</h3>
+  <p>Each deck is a self-contained playback unit. <span class="badge badge-a">DECK A</span> is purple-themed (left) and <span class="badge badge-b">DECK B</span> is blue-themed (right). Both decks have identical controls:</p>
+  <table>
+    <tr><th>Control</th><th>Function</th></tr>
+    <tr><td>Track Title</td><td>Shows the loaded file name</td></tr>
+    <tr><td>📂 Load button</td><td>Opens file browser to load an audio file</td></tr>
+    <tr><td>Vinyl Canvas</td><td>Animated spinning record — spins when playing</td></tr>
+    <tr><td>Waveform</td><td>Visual representation of the audio. Click anywhere to jump to that position.</td></tr>
+    <tr><td>BPM display</td><td>Auto-detected beats per minute (tap TAP to correct manually)</td></tr>
+    <tr><td>KEY display</td><td>Detected musical key in Camelot notation (e.g., 8A, 8B)</td></tr>
+    <tr><td>TAP button</td><td>Tap repeatedly on the beat to set BPM manually</td></tr>
+    <tr><td>± Key shift</td><td>Shift pitch up/down by semitones (changes playback speed)</td></tr>
+    <tr><td>⏱ Timer</td><td>Current playback position (minutes:seconds)</td></tr>
+    <tr><td>PITCH slider</td><td>Adjusts playback speed ±8% without changing key (visual)</td></tr>
+    <tr><td>▶ Play/Pause</td><td>Start or pause playback</td></tr>
+    <tr><td>CUE button</td><td>If paused: sets a cue point. If playing: jumps to cue point.</td></tr>
+    <tr><td>SYNC button</td><td>Matches this deck's BPM to the other deck</td></tr>
+    <tr><td>⟳ LOOP button</td><td>Activates/deactivates a 4-beat loop from current position</td></tr>
+    <tr><td>Hot Cues 1–8</td><td>Colored buttons for setting and jumping to up to 8 saved positions</td></tr>
+  </table>
+
+  <h3 id="mixer">Mixer Center</h3>
+  <table>
+    <tr><th>Control</th><th>Function</th></tr>
+    <tr><td>A EQ knobs (Hi/Mid/Lo)</td><td>Boost or cut high, mid, and low frequencies for Deck A</td></tr>
+    <tr><td>B EQ knobs (Hi/Mid/Lo)</td><td>Same for Deck B</td></tr>
+    <tr><td>VU Meters</td><td>Three color-coded level meters: Deck A, Master, Deck B</td></tr>
+    <tr><td>Vol A fader</td><td>Volume for Deck A (vertical slider)</td></tr>
+    <tr><td>Master fader</td><td>Overall output volume</td></tr>
+    <tr><td>Vol B fader</td><td>Volume for Deck B</td></tr>
+    <tr><td>Crossfader</td><td>Blends between Deck A (left) and Deck B (right)</td></tr>
+    <tr><td>Curve buttons</td><td>Linear / Scratch / Smooth crossfade curve modes</td></tr>
+    <tr><td>Master Vol slider</td><td>Second master volume control (below crossfader)</td></tr>
+  </table>
+
+  <h3 id="effects">Effects Panel</h3>
+  <p>Five effect modules, each with an on/off toggle and parameter knobs. A <strong>DECK A/B</strong> selector routes the FX to the chosen deck.</p>
+
+  <h3 id="stems">Stems Panel</h3>
+  <p>Four stem channel controls — Vocals, Drums, Bass, Melody — each with mute toggle and volume slider. The <strong>⚗ Separate Stems (AI)</strong> button opens <a href="https://fadr.com/create" target="_blank">Fadr.com</a> for AI-powered stem separation.</p>
+
+  <h3 id="timeline">Timeline</h3>
+  <p>A compact overview of both loaded tracks showing the full waveform, BPM beat grid, and a white playhead line. Click anywhere on either timeline to jump to that position.</p>
+
+  <!-- ═══════ LOADING TRACKS ═══════ -->
+  <h2 id="loading">5. Loading Tracks</h2>
+
+  <h3>Method 1: Local File Upload</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Click 📂 Load on your chosen deck</strong><p>The file browser opens. Navigate to your music folder.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Select your audio file</strong><p>Supported formats: MP3, WAV, FLAC, OGG, AAC, M4A, and any format your browser supports.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Wait for analysis</strong><p>The app decodes the audio, draws the waveform, and automatically detects BPM and musical key. This takes 1–3 seconds depending on file size.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Check the readout</strong><p>Verify the BPM and KEY values appear in the info row. If BPM looks wrong, use TAP tempo to correct it.</p></div></div>
+  </div>
+
+  <h3>Method 2: YouTube (with API Key)</h3>
+  <p>See the <a href="#youtube">YouTube Search section</a> for full instructions.</p>
+
+  <div class="warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Large files</strong> Files over 100 MB may take several seconds to decode. Very large WAV files (24-bit, 192 kHz) may cause a brief pause. MP3s at 320kbps load fastest.</div>
+  </div>
+
+  <!-- ═══════ PLAYBACK ═══════ -->
+  <h2 id="playback">6. Playback Controls</h2>
+
+  <h3>Basic Playback</h3>
+  <table>
+    <tr><th>Action</th><th>How To</th></tr>
+    <tr><td>Play / Pause</td><td>Click the large circular ▶ button or press <code>Space</code> (Deck A) / <code>Enter</code> (Deck B)</td></tr>
+    <tr><td>Seek forward 5 sec</td><td>Press <code>→</code> (Deck A only)</td></tr>
+    <tr><td>Seek back 5 sec</td><td>Press <code>←</code> (Deck A only)</td></tr>
+    <tr><td>Jump to position</td><td>Click anywhere on the waveform or timeline</td></tr>
+    <tr><td>Set Cue Point</td><td>Pause at desired position, then click <strong>CUE</strong></td></tr>
+    <tr><td>Jump to Cue Point</td><td>Click <strong>CUE</strong> while playing — snaps back to cue point</td></tr>
+  </table>
+
+  <h3 id="hotcues">Hot Cues</h3>
+  <p>Hot cues let you mark up to <strong>8 specific points</strong> in a track and jump back to them instantly — perfect for verse, chorus, and drop markers.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Play or navigate to the spot you want to mark</strong><p>For example, the start of the chorus.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Click an empty Hot Cue button (1–8)</strong><p>The button changes color (each cue has a unique color). The time position is saved.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Click the colored button at any time to jump there</strong><p>The track instantly jumps to that saved position. If playing, it continues from there.</p></div></div>
+  </div>
+
+  <div class="tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Pro Tip:</strong> Set Hot Cue 1 at the intro, Hot Cue 2 at the first drop, Hot Cue 3 at the breakdown. During a live set, you can jump between sections instantly without hunting through the waveform.</div>
+  </div>
+
+  <h3>Loop Controls</h3>
+  <p>The <strong>⟳ LOOP</strong> button creates an automatic 4-beat loop from the current playback position.</p>
+  <table>
+    <tr><th>Action</th><th>How To</th></tr>
+    <tr><td>Start loop</td><td>Click LOOP during playback — loop activates from current beat</td></tr>
+    <tr><td>Exit loop</td><td>Click LOOP again — returns to normal playback</td></tr>
+    <tr><td>Loop length</td><td>Automatically calculated from the detected BPM (4 beats)</td></tr>
+  </table>
+
+  <!-- ═══════ BPM & KEY ═══════ -->
+  <h2 id="bpm-key">7. BPM & Key Detection</h2>
+
+  <h3>Automatic BPM Detection</h3>
+  <p>When you load a track, ProMix analyzes the audio waveform using <strong>onset energy detection</strong> — it finds sudden increases in loudness (beats) and calculates the average interval between them to determine the tempo.</p>
+  <p>The detected BPM appears next to the deck label. BPM is always clamped to a musical range (70–200 BPM), so double-time and half-time tracks are handled correctly.</p>
+
+  <h4>Correcting BPM with Tap Tempo</h4>
+  <p>If the auto-detected BPM is wrong (common with complex electronic music or live recordings):</p>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Play the track</strong><p>Listen to the beat.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Click TAP repeatedly in time with the beat</strong><p>Click at least 4 times. The BPM updates after each tap using the average interval.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Tap again after 2+ seconds to reset</strong><p>A 2-second gap clears the previous taps and starts fresh.</p></div></div>
+  </div>
+
+  <h3>Automatic Key Detection</h3>
+  <p>ProMix uses a <strong>pitch class profile</strong> analysis (based on the Krumhansl–Schmuckler model) to detect the musical key. It samples the frequency spectrum, builds a 12-note chroma profile, and compares it to known major and minor key templates.</p>
+  <p>The detected key is displayed in <strong>Camelot Wheel notation</strong> (e.g., <code>8A</code> = A minor, <code>8B</code> = C major).</p>
+
+  <h3>Key Shift</h3>
+  <p>The <strong>–</strong> and <strong>+</strong> buttons shift the key display (and playback pitch) by semitones. This is useful when:</p>
+  <ul>
+    <li>You want to force two tracks into the same key</li>
+    <li>The auto-detection was slightly off</li>
+    <li>You want to creatively pitch a track up or down</li>
+  </ul>
+
+  <div class="note">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body"><strong>Camelot Notation:</strong> Numbers 1–12 represent key families. "A" = minor keys, "B" = major keys. Adjacent numbers on the wheel (e.g., 7A and 8A) are harmonically compatible.</div>
+  </div>
+
+  <!-- ═══════ CAMELOT WHEEL ═══════ -->
+  <h2 id="camelot">8. Camelot Wheel</h2>
+  <p>Click the <strong>⟳ Camelot Wheel</strong> button in the header to open the interactive harmonic mixing guide. This SVG wheel shows all 24 musical keys arranged so that harmonically compatible keys are adjacent.</p>
+
+  <h3>Reading the Wheel</h3>
+  <table>
+    <tr><th>Ring</th><th>Meaning</th></tr>
+    <tr><td>Outer ring (B keys)</td><td>Major keys (e.g., 8B = C major, 9B = G major)</td></tr>
+    <tr><td>Inner ring (A keys)</td><td>Minor keys (e.g., 8A = A minor, 9A = E minor)</td></tr>
+    <tr><td>Same number (e.g., 8A + 8B)</td><td>Relative major/minor — very compatible (parallel keys)</td></tr>
+    <tr><td>Adjacent number (e.g., 8A + 7A)</td><td>Neighboring key — sounds natural and smooth</td></tr>
+    <tr><td>Same letter, ±2 (e.g., 8A + 10A)</td><td>Can work — slightly more tension</td></tr>
+    <tr><td>Opposite side of wheel</td><td>Clashing keys — avoid for smooth transitions</td></tr>
+  </table>
+
+  <h3>Using the Camelot Wheel in Practice</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Note the key of your current track</strong><p>For example, Deck A shows <strong>8A</strong> (A minor).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Open the Camelot Wheel</strong><p>Find position 8A on the wheel.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Choose your next track from a compatible position</strong><p>Compatible choices: <strong>8B</strong> (C major), <strong>7A</strong> (D minor), <strong>9A</strong> (E minor).</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Load that track to Deck B and mix in</strong><p>The transition will sound musically natural.</p></div></div>
+  </div>
+
+  <!-- ═══════ EQ ═══════ -->
+  <h2 id="eq">9. EQ & Mixing</h2>
+
+  <h3>3-Band Equalizer</h3>
+  <p>Each deck has three frequency bands controlled by the canvas knobs in the mixer center:</p>
+  <table>
+    <tr><th>Band</th><th>Frequency Range</th><th>Controls</th></tr>
+    <tr><td><strong>HI</strong> (High shelf)</td><td>10,000 Hz and above</td><td>Cymbals, hi-hats, air, sibilance</td></tr>
+    <tr><td><strong>MID</strong> (Peaking)</td><td>Around 1,000 Hz</td><td>Vocals, guitars, presence</td></tr>
+    <tr><td><strong>LO</strong> (Low shelf)</td><td>200 Hz and below</td><td>Kick drum, bass, sub frequencies</td></tr>
+  </table>
+
+  <h4>How to use the knobs</h4>
+  <ul>
+    <li><strong>Drag up</strong> on a knob to boost that frequency range (+12 dB max)</li>
+    <li><strong>Drag down</strong> to cut that frequency range (–12 dB max)</li>
+    <li><strong>Scroll the mouse wheel</strong> on a knob to adjust it precisely</li>
+    <li>Knob at <strong>center position</strong> = flat (no boost or cut)</li>
+  </ul>
+
+  <div class="tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Classic EQ Transition Technique:</strong> Before bringing in Deck B, cut the lows (LO knob all the way down) on Deck B. As you move the crossfader to B, gradually bring the lows back up. This prevents bass clash between the two tracks.</div>
+  </div>
+
+  <!-- ═══════ CROSSFADER ═══════ -->
+  <h2 id="crossfader">10. Crossfader</h2>
+  <p>The horizontal crossfader blends between Deck A and Deck B. When the fader is:</p>
+  <ul>
+    <li><strong>Far left</strong> — Only Deck A is heard</li>
+    <li><strong>Center</strong> — Both decks play at equal volume</li>
+    <li><strong>Far right</strong> — Only Deck B is heard</li>
+  </ul>
+
+  <h3>Crossfader Curves</h3>
+  <table>
+    <tr><th>Mode</th><th>Best For</th><th>Behavior</th></tr>
+    <tr><td><strong>Linear</strong></td><td>General mixing</td><td>Smooth, proportional blend across the full range</td></tr>
+    <tr><td><strong>Scratch</strong></td><td>Hip-hop, turntablism</td><td>Quick cut — audio switches sharply near the edges, flat in the middle</td></tr>
+    <tr><td><strong>Smooth</strong></td><td>Deep house, ambient</td><td>Cosine curve — gradual fade that sounds natural to the ear</td></tr>
+  </table>
+
+  <!-- ═══════ EFFECTS ═══════ -->
+  <h2 id="fx">11. Effects</h2>
+  <p>Five professional audio effects are available. Each has an on/off toggle (click the toggle to activate — it turns purple) and adjustable knobs.</p>
+
+  <div class="warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>FX Deck Routing:</strong> Effects are applied to one deck at a time. Use the <strong>A / B</strong> buttons in the Effects panel to choose which deck receives the effects.</div>
+  </div>
+
+  <h3>REVERB</h3>
+  <p>Adds a room or hall ambience to the sound, making it feel like it's in a large space.</p>
+  <table>
+    <tr><th>Knob</th><th>Function</th></tr>
+    <tr><td>Wet</td><td>How much reverb is mixed in (0 = dry, max = very wet/washed out)</td></tr>
+    <tr><td>Size</td><td>Size of the virtual room (larger = longer reverb tail)</td></tr>
+  </table>
+
+  <h3>DELAY</h3>
+  <p>Creates repeating echoes of the audio, synchronized with the mix.</p>
+  <table>
+    <tr><th>Knob</th><th>Function</th></tr>
+    <tr><td>Time</td><td>Delay time in seconds (0–1.5 sec)</td></tr>
+    <tr><td>Feedback</td><td>How many times the echo repeats (0 = one echo, max = infinite)</td></tr>
+  </table>
+
+  <h3>FILTER</h3>
+  <p>A bandpass filter that lets through only a narrow range of frequencies — great for buildups and breakdowns.</p>
+  <table>
+    <tr><th>Knob</th><th>Function</th></tr>
+    <tr><td>Freq</td><td>Center frequency (sweep from 80 Hz to 16,000 Hz)</td></tr>
+    <tr><td>Q</td><td>Width of the filter (higher Q = narrower, more resonant)</td></tr>
+  </table>
+
+  <h3>FLANGER</h3>
+  <p>A classic modulation effect that creates a swirling, jet-engine-like sound.</p>
+  <table>
+    <tr><th>Knob</th><th>Function</th></tr>
+    <tr><td>Rate</td><td>Speed of the flanger oscillation</td></tr>
+    <tr><td>Depth</td><td>Intensity of the effect</td></tr>
+  </table>
+
+  <h3>ECHO</h3>
+  <p>A single-repeat echo effect for dramatic rhythmic accents.</p>
+  <table>
+    <tr><th>Knob</th><th>Function</th></tr>
+    <tr><td>Beat Div</td><td>Echo timing relative to the beat</td></tr>
+  </table>
+
+  <!-- ═══════ YOUTUBE ═══════ -->
+  <h2 id="youtube">12. YouTube Search</h2>
+
+  <h3 id="apikey">Getting a Free YouTube API Key</h3>
+  <p>The YouTube search feature requires a free API key from Google. This takes about 5 minutes:</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Go to Google Cloud Console</strong><p>Visit <a href="https://console.cloud.google.com/" target="_blank">console.cloud.google.com</a> and sign in with your Google account.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Create a new project</strong><p>Click the project dropdown at the top → <strong>New Project</strong> → name it "DJ Mixer" → click Create.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Enable YouTube Data API v3</strong><p>Go to <strong>APIs & Services → Library</strong> → search "YouTube Data API v3" → click Enable.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Create credentials</strong><p>Go to <strong>APIs & Services → Credentials</strong> → click <strong>Create Credentials → API Key</strong>. Copy the key that appears.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Paste it in ProMix</strong><p>In the ProMix header bar, paste your key into the <strong>API Key</strong> field. Your searches are now live.</p></div></div>
+  </div>
+
+  <div class="note">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body"><strong>Free quota:</strong> Google gives you 10,000 search units per day for free — roughly 100 searches. More than enough for personal DJ use. No credit card required.</div>
+  </div>
+
+  <h3>Searching for a Track</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Type your search in the search bar</strong><p>Examples: <em>"Daft Punk Around The World"</em>, <em>"Drake Hotline Bling remix"</em>, <em>"deep house 128 bpm"</em></p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Press Enter or click SEARCH</strong><p>Results appear with thumbnails, title, and channel name.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Choose an action for each result:</strong>
+      <ul>
+        <li><strong>→ A</strong> — Load directly to Deck A (via cobalt.tools audio extraction)</li>
+        <li><strong>→ B</strong> — Load directly to Deck B</li>
+        <li><strong>⬇ MP3</strong> — Download as MP3 file to your computer</li>
+        <li><strong>▶ YT</strong> — Open the video on YouTube in a new tab</li>
+      </ul>
+    </div></div>
+  </div>
+
+  <h3 id="mp3download">Downloading MP3s</h3>
+  <p>The MP3 download uses <a href="https://cobalt.tools/" target="_blank">cobalt.tools</a> — a free, open-source YouTube-to-audio service. No account or login is needed.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Find a track via YouTube Search</strong><p>Or have a YouTube URL ready.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Click ⬇ MP3</strong><p>The app requests a download link from cobalt.tools.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>The MP3 file downloads</strong><p>Your browser may ask where to save it, or it saves to your Downloads folder automatically.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Load the downloaded file into ProMix</strong><p>Use the 📂 Load button to load your newly downloaded MP3 to a deck.</p></div></div>
+  </div>
+
+  <div class="warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Important:</strong> Only download music you have the right to use. Respect copyright law. ProMix DJ Studio is intended for personal use, private events, and licensed DJ performances.</div>
+  </div>
+
+  <!-- ═══════ RECORDING ═══════ -->
+  <h2 id="recording">13. Recording Your Mix</h2>
+  <p>ProMix can record everything coming out of the master output — all your mixing, effects, and transitions — and save it as an audio file you can share or archive.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Before you start mixing, click ● REC</strong><p>The button turns red and pulses. Recording has started. Everything you do from this point will be captured.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Perform your mix</strong><p>Load tracks, play, crossfade, apply effects — mix as normal. The recorder captures it all.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Click ⏹ STOP REC when finished</strong><p>The button returns to normal. Your mix is now stored in memory.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Click ⬇ Download Mix</strong><p>A file named <code>ProMix_[timestamp].webm</code> downloads to your computer. This is a standard audio file playable in VLC, Chrome, and most media players.</p></div></div>
+  </div>
+
+  <h3 id="export">Converting to MP3</h3>
+  <p>The downloaded file is in <strong>WebM/Opus</strong> format — a high-quality audio format. To convert to MP3:</p>
+  <ul>
+    <li><strong>VLC Media Player</strong> — Media → Convert/Save → Add file → choose MP3 output</li>
+    <li><strong>Audacity</strong> — File → Import → export as MP3</li>
+    <li><strong>Online converter</strong> — <a href="https://cloudconvert.com/webm-to-mp3" target="_blank">cloudconvert.com</a> (free)</li>
+    <li><strong>FFmpeg</strong> (command line): <code>ffmpeg -i ProMix_123.webm output.mp3</code></li>
+  </ul>
+
+  <!-- ═══════ AUTO MIX ═══════ -->
+  <h2 id="automix">14. Auto Mix</h2>
+  <p>The <strong>⚡ Auto Mix</strong> feature automates the transition between Deck A and Deck B — it syncs the BPM and smoothly moves the crossfader over about 4 seconds.</p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Load tracks on both Deck A and Deck B</strong><p>Make sure both tracks are loaded and BPM is detected.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Start playing Deck A</strong><p>Let the track play to the point where you want to mix out.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Click ⚡ Auto Mix</strong><p>The app automatically: (a) syncs Deck B's tempo to Deck A, (b) starts Deck B playing, (c) smoothly fades the crossfader from A to B over ~4 seconds.</p></div></div>
+  </div>
+
+  <div class="tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Pro Tip:</strong> For a better auto-mix, use the Camelot Wheel to choose a harmonically compatible track for Deck B before triggering Auto Mix. Then position Deck B to its intro or drop before clicking Auto Mix.</div>
+  </div>
+
+  <!-- ═══════ STEMS ═══════ -->
+  <h2 id="stem-sep">15. Stem Separation</h2>
+  <p>Stems are the individual components of a song: <strong>Vocals, Drums, Bass, and Melody</strong>. By separating them, you can create acapellas, instrumentals, or completely remix a track.</p>
+
+  <h3>Stem Volume Controls</h3>
+  <p>The Stems panel at the bottom of the app lets you adjust the volume of each component independently. The toggle button mutes/unmutes that stem. The slider adjusts its level.</p>
+
+  <h3>AI Stem Separation via Fadr</h3>
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Click ⚗ Separate Stems (AI)</strong><p>This opens <a href="https://fadr.com/create" target="_blank">Fadr.com</a> in a new tab.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Upload your track to Fadr</strong><p>Drag and drop your audio file onto the Fadr interface.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Wait for AI processing (under 60 seconds)</strong><p>Fadr splits the track into individual stems: Vocals, Drums, Bass, Melody (and up to 16 components on Pro).</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Download the individual stems</strong><p>Download the acapella (vocals only), instrumental, or any individual stem.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Load stems back into ProMix</strong><p>Load the acapella from one song onto Deck A and the instrumental from another onto Deck B — you've just made a mashup!</p></div></div>
+  </div>
+
+  <!-- ═══════ SYNC & PITCH ═══════ -->
+  <h2 id="sync">16. Sync & Pitch</h2>
+
+  <h3>SYNC Button</h3>
+  <p>Click <strong>SYNC</strong> on a deck to automatically match its BPM to the other deck. This adjusts the pitch slider percentage to make both decks play at the same tempo.</p>
+
+  <h3>Pitch Slider</h3>
+  <p>The horizontal pitch slider adjusts playback speed from <strong>–8% to +8%</strong>. Drag right to speed up, left to slow down. The percentage is shown to the right of the slider.</p>
+
+  <h3>Key Shift Buttons</h3>
+  <p>The <strong>–</strong> and <strong>+</strong> buttons shift the pitch by one semitone per click. This changes both the key display and the actual playback pitch. Useful for matching keys before mixing.</p>
+
+  <!-- ═══════ KEYBOARD SHORTCUTS ═══════ -->
+  <h2 id="keyboard">17. Keyboard Shortcuts</h2>
+  <p>ProMix is fully operable with keyboard shortcuts for faster live performance. Shortcuts do not fire when the cursor is inside a text input field.</p>
+
+  <table class="kb-table">
+    <tr><th>Key</th><th>Action</th></tr>
+    <tr><td>Space</td><td>Play / Pause Deck A</td></tr>
+    <tr><td>Enter</td><td>Play / Pause Deck B</td></tr>
+    <tr><td>←</td><td>Seek Deck A back 5 seconds</td></tr>
+    <tr><td>→</td><td>Seek Deck A forward 5 seconds</td></tr>
+    <tr><td>Q</td><td>Set/Jump Cue on Deck A</td></tr>
+    <tr><td>W</td><td>Set/Jump Cue on Deck B</td></tr>
+    <tr><td>S</td><td>Sync Deck B to Deck A's BPM</td></tr>
+    <tr><td>A</td><td>Toggle Mix Recording on/off</td></tr>
+  </table>
+
+  <!-- ═══════ TUTORIALS ═══════ -->
+  <h2 id="tutorial1">18. Tutorial 1 — Your First Mix</h2>
+  <p><em>Goal: Load two tracks and perform a manual crossfader mix. Time: ~5 minutes.</em></p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Open dj-mixer.html in Chrome</strong><p>Double-click the file. The app loads instantly.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Load a track on Deck A</strong><p>Click 📂 Load on Deck A. Choose an upbeat song — something with a steady kick drum. Example: any dance or EDM track.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Load a different track on Deck B</strong><p>Choose something with a similar energy and tempo. Check that both tracks show similar BPM values.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Move the crossfader all the way left (to A)</strong><p>Deck A is now the only thing you'll hear.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Press Space to play Deck A</strong><p>Listen and enjoy.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Click SYNC on Deck B</strong><p>This matches Deck B's tempo to Deck A automatically.</p></div></div>
+    <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Click the waveform on Deck B to position it at the start</strong><p>Click the far left of Deck B's waveform.</p></div></div>
+    <div class="step"><div class="step-num">8</div><div class="step-body"><strong>When Deck A reaches a chorus or phrase end, start Deck B</strong><p>Press Enter to start Deck B playing. You should hear both in sync.</p></div></div>
+    <div class="step"><div class="step-num">9</div><div class="step-body"><strong>Slowly slide the crossfader to the right</strong><p>Over 8–16 beats, fade from A to B. You've just performed your first mix!</p></div></div>
+    <div class="step"><div class="step-num">10</div><div class="step-body"><strong>Pause Deck A once the crossfader is all the way right</strong><p>Deck A is done. Load your next track and repeat.</p></div></div>
+  </div>
+
+  <!-- ═══════ TUTORIAL 2 ═══════ -->
+  <h2 id="tutorial2">19. Tutorial 2 — DJ Party Set with Recording</h2>
+  <p><em>Goal: Record a 3-track mix with effects. Time: ~15 minutes.</em></p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Prepare your tracklist</strong><p>Choose 3 songs with similar BPM (e.g., all around 120–130 BPM). Check their keys using the Camelot Wheel to pick harmonically compatible tracks.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Click ● REC to start recording</strong><p>The button pulses red. Everything is now being captured.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Load Track 1 on Deck A and play it</strong><p>Press Space. Let it run for a minute or two.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Load Track 2 on Deck B</strong><p>Sync it, position Deck B at the intro or drop.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Apply a build-up effect</strong><p>Enable the FILTER effect, route it to Deck A (FX → A). Turn up Freq knob. The filter sweeps — great for signaling the incoming transition.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Cut the bass on Deck A before mixing in B</strong><p>On Deck A's EQ, drag the LO knob all the way down (counter-clockwise). This removes the bass.</p></div></div>
+    <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Start Deck B and move the crossfader to B</strong><p>Slowly push the crossfader right over 8 bars. Bring Deck B's LO knob up as you do.</p></div></div>
+    <div class="step"><div class="step-num">8</div><div class="step-body"><strong>Load Track 3 on Deck A and repeat</strong><p>Deck A is now free. Load Track 3, sync it, and repeat the process for the second transition.</p></div></div>
+    <div class="step"><div class="step-num">9</div><div class="step-body"><strong>Click ⏹ STOP REC and then ⬇ Download Mix</strong><p>Your 3-track mix is saved to your computer as a WebM audio file.</p></div></div>
+  </div>
+
+  <!-- ═══════ TUTORIAL 3 ═══════ -->
+  <h2 id="tutorial3">20. Tutorial 3 — YouTube to Mix</h2>
+  <p><em>Goal: Search YouTube, download two tracks as MP3, and mix them. Requires API key.</em></p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Enter your YouTube API key</strong><p>Paste it into the header API key field.</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Search for your first song</strong><p>Type in the search bar: <em>"Calvin Harris Summer"</em>. Press Enter.</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Click ⬇ MP3 on the best result</strong><p>Wait for the download. Save the file.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>Search for your second song</strong><p>E.g., <em>"Avicii Wake Me Up"</em>. Download as MP3.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Load both MP3s into the decks</strong><p>📂 Load → Track 1 to Deck A, Track 2 to Deck B.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Check harmonic compatibility</strong><p>Note both Camelot keys. Open the Camelot Wheel to verify they're compatible. If not, use Key Shift to adjust one deck.</p></div></div>
+    <div class="step"><div class="step-num">7</div><div class="step-body"><strong>Mix them using SYNC and the crossfader</strong><p>Click ● REC, perform your mix, click ⬇ Download Mix to save it.</p></div></div>
+  </div>
+
+  <!-- ═══════ TUTORIAL 4 ═══════ -->
+  <h2 id="tutorial4">21. Tutorial 4 — Harmonic Mixing with the Camelot Wheel</h2>
+  <p><em>Goal: Build a harmonically perfect 4-track set using only compatible keys.</em></p>
+
+  <div class="steps">
+    <div class="step"><div class="step-num">1</div><div class="step-body"><strong>Load your first track on Deck A</strong><p>Note the KEY display. Example: it shows <strong>8B</strong> (C major).</p></div></div>
+    <div class="step"><div class="step-num">2</div><div class="step-body"><strong>Open the Camelot Wheel</strong><p>Find position 8B. The compatible next keys are: <strong>8A</strong> (A minor), <strong>7B</strong> (F major), <strong>9B</strong> (G major).</p></div></div>
+    <div class="step"><div class="step-num">3</div><div class="step-body"><strong>Browse your library for a track in one of those keys</strong><p>Load candidates onto Deck B and check their detected key.</p></div></div>
+    <div class="step"><div class="step-num">4</div><div class="step-body"><strong>If close but not exact, use Key Shift</strong><p>If Deck B shows 9A instead of 8A, click the <strong>–</strong> key shift button once. Now the Camelot display shows 8A and they're compatible.</p></div></div>
+    <div class="step"><div class="step-num">5</div><div class="step-body"><strong>Mix in Deck B harmonically</strong><p>The transition will sound musically natural — no clashing, no dissonance.</p></div></div>
+    <div class="step"><div class="step-num">6</div><div class="step-body"><strong>Plan the rest of your set</strong><p>From 8A, compatible next keys are 8B, 7A, 9A. You can move "around" the wheel to take listeners on a harmonic journey.</p></div></div>
+  </div>
+
+  <!-- ═══════ FAQ ═══════ -->
+  <h2 id="faq">22. FAQ</h2>
+
+  <h3>No sound is coming out. What's wrong?</h3>
+  <p>Browsers require a user interaction before playing audio. Click the Play button or anywhere on the page first. Also check your system volume and that the browser tab isn't muted.</p>
+
+  <h3>The BPM detected is half or double the actual tempo</h3>
+  <p>This is common with some genres. Use the <strong>TAP</strong> button to correct it manually — tap along to the beat 4–8 times.</p>
+
+  <h3>YouTube search returns "Error"</h3>
+  <p>Your API key may be invalid, expired, or over the daily quota. Check the key in Google Cloud Console. The free daily quota is 10,000 units (~100 searches).</p>
+
+  <h3>MP3 download doesn't start</h3>
+  <p>cobalt.tools may be temporarily busy. Try again in a moment. Alternatively, click <strong>▶ YT</strong> to open the video on YouTube and use another download tool.</p>
+
+  <h3>Can I use this app offline?</h3>
+  <p>Yes — all core mixing features work completely offline. You only need internet for YouTube search and MP3 download.</p>
+
+  <h3>Can I save my mix settings or hot cues?</h3>
+  <p>Currently, settings are not saved between sessions. Hot cues, BPM edits, and loaded tracks reset when you refresh the page. Save your recording before closing.</p>
+
+  <h3>The file doesn't open on my computer</h3>
+  <p>Right-click the <code>dj-mixer.html</code> file → <em>Open with</em> → choose <strong>Google Chrome</strong>, <strong>Firefox</strong>, or <strong>Microsoft Edge</strong>.</p>
+
+  <h3>Can I use this on my phone or tablet?</h3>
+  <p>Yes — the app runs in mobile browsers. However, the full layout is designed for a laptop/desktop screen. Landscape mode on a tablet is recommended.</p>
+
+  <!-- ═══════ TROUBLESHOOTING ═══════ -->
+  <h2 id="troubleshooting">23. Troubleshooting</h2>
+
+  <table>
+    <tr><th>Issue</th><th>Solution</th></tr>
+    <tr><td>App is silent</td><td>Click anywhere on the page first (browser audio policy). Check system volume. Check that the browser tab isn't muted (right-click tab → Unmute).</td></tr>
+    <tr><td>Waveform doesn't appear</td><td>The file may not have decoded yet. Wait 2–3 seconds. If it still doesn't appear, the audio format may be unsupported — try converting to MP3 first.</td></tr>
+    <tr><td>BPM says "--"</td><td>The audio may be too short or too complex for auto-detection. Use TAP tempo to set it manually.</td></tr>
+    <tr><td>Key says "--"</td><td>Key detection needs about 200ms of audio data. Click somewhere in the middle of a track and try reloading.</td></tr>
+    <tr><td>Reverb/Delay has no effect</td><td>Make sure the FX toggle is active (purple) AND that the correct deck (A or B) is selected in the FX DECK buttons.</td></tr>
+    <tr><td>YouTube search is blank</td><td>Confirm the API key is correctly entered. Ensure the browser is not blocking the API request (try disabling VPN or ad-blocker).</td></tr>
+    <tr><td>Download Mix is empty or tiny</td><td>You must click ● REC <em>before</em> starting your mix. If you forgot, re-record the mix.</td></tr>
+    <tr><td>Tracks are out of sync after Sync</td><td>The detected BPM of one track may be wrong (double-time or half-time). Correct with TAP, then click SYNC again.</td></tr>
+    <tr><td>App is slow on long tracks</td><td>Very long WAV files (1+ hour) may be slow. Use MP3 format for best performance.</td></tr>
+  </table>
+
+  <hr style="margin:40px 0;border:1px solid var(--border)">
+  <div style="text-align:center;color:var(--text2);font-size:.85rem;padding-bottom:20px">
+    <p><strong>ProMix DJ Studio</strong> — User Manual v1.0</p>
+    <p>Built on Web Audio API · Powered by cobalt.tools · Stem separation via Fadr</p>
+    <p style="margin-top:8px;color:var(--text3)">Open source · No installation required · Works in any modern browser</p>
+  </div>
+
+</div>
+
+<script>
+// Active nav highlight on scroll
+const sections = document.querySelectorAll('h2[id], h3[id]');
+const navItems = document.querySelectorAll('.nav-item');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      navItems.forEach(n => n.classList.remove('active'));
+      const match = document.querySelector(`.nav-item[href="#${e.target.id}"]`);
+      if(match) match.classList.add('active');
+    }
+  });
+}, {rootMargin:'-20% 0px -70% 0px'});
+sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
