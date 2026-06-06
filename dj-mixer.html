@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProMix DJ Studio — Ultimate Party Mixer</title>
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #12121a;
+  --bg3: #1a1a28;
+  --bg4: #22223a;
+  --accent: #7c3aed;
+  --accent2: #4f46e5;
+  --neon: #a78bfa;
+  --neon2: #60a5fa;
+  --neon3: #34d399;
+  --red: #f87171;
+  --yellow: #fbbf24;
+  --text: #e2e8f0;
+  --text2: #94a3b8;
+  --text3: #64748b;
+  --border: #2d2d4a;
+  --deck-a: #7c3aed;
+  --deck-b: #0ea5e9;
+  --glow: 0 0 20px rgba(124,58,237,0.4);
+  --glow2: 0 0 20px rgba(14,165,233,0.4);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;overflow-x:hidden;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--bg2)}
+::-webkit-scrollbar-thumb{background:var(--accent);border-radius:3px}
+
+/* HEADER */
+#header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:linear-gradient(90deg,var(--bg2),var(--bg3));border-bottom:1px solid var(--border);flex-wrap:wrap}
+#logo{font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,var(--neon),var(--neon2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;letter-spacing:-1px;white-space:nowrap}
+#logo span{font-size:.7rem;display:block;-webkit-text-fill-color:var(--text2);letter-spacing:2px;font-weight:400}
+.hdr-group{display:flex;align-items:center;gap:8px;flex:1;flex-wrap:wrap}
+#api-key-input{background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px;font-size:.75rem;width:220px}
+#api-key-input:focus{outline:none;border-color:var(--accent)}
+.hdr-btn{padding:7px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.8rem;font-weight:600;transition:.2s}
+#rec-btn{background:var(--red);color:#fff}
+#rec-btn.recording{background:#991b1b;animation:pulse 1s infinite}
+#dl-mix-btn{background:var(--neon3);color:#000}
+#camelot-btn{background:var(--bg4);color:var(--neon);border:1px solid var(--accent)}
+#automix-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* SEARCH */
+#search-section{padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+#search-input{flex:1;min-width:200px;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:8px 14px;border-radius:8px;font-size:.9rem}
+#search-input:focus{outline:none;border-color:var(--neon)}
+#search-btn{padding:8px 18px;background:var(--accent);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:600}
+#search-btn:hover{background:var(--accent2)}
+#search-status{color:var(--text2);font-size:.8rem}
+
+/* SEARCH RESULTS */
+#results-panel{max-height:200px;overflow-y:auto;background:var(--bg2);border-bottom:1px solid var(--border);display:none}
+.result-item{display:flex;align-items:center;gap:10px;padding:8px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:.15s}
+.result-item:hover{background:var(--bg3)}
+.result-thumb{width:60px;height:45px;object-fit:cover;border-radius:4px;flex-shrink:0}
+.result-info{flex:1;min-width:0}
+.result-title{font-size:.85rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.result-channel{font-size:.75rem;color:var(--text2)}
+.result-actions{display:flex;gap:6px;flex-shrink:0}
+.load-deck-btn{padding:4px 8px;border-radius:4px;border:none;cursor:pointer;font-size:.7rem;font-weight:700}
+.load-a{background:var(--deck-a);color:#fff}
+.load-b{background:var(--deck-b);color:#fff}
+.dl-yt-btn{padding:4px 8px;background:var(--yellow);color:#000;border:none;border-radius:4px;cursor:pointer;font-size:.7rem;font-weight:700}
+
+/* MAIN LAYOUT */
+#main{display:grid;grid-template-columns:1fr auto 1fr;gap:0;min-height:0}
+
+/* DECK */
+.deck{background:var(--bg2);padding:12px;display:flex;flex-direction:column;gap:10px;border-bottom:1px solid var(--border)}
+#deck-a{border-right:1px solid var(--border)}
+#deck-b{border-left:1px solid var(--border)}
+.deck-label{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.deck-name{font-size:.7rem;font-weight:800;letter-spacing:2px}
+#deck-a .deck-name{color:var(--deck-a)}
+#deck-b .deck-name{color:var(--deck-b)}
+.track-title{font-size:.8rem;color:var(--text2);flex:1;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.file-input-wrap{position:relative}
+.file-input-wrap input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+.file-btn{padding:4px 10px;background:var(--bg4);color:var(--text2);border:1px solid var(--border);border-radius:5px;font-size:.7rem;cursor:pointer;white-space:nowrap}
+
+/* TURNTABLE */
+.turntable-wrap{display:flex;justify-content:center;position:relative}
+.turntable{border-radius:50%;position:relative;cursor:pointer;flex-shrink:0}
+canvas.vinyl{border-radius:50%;display:block}
+.needle{position:absolute;top:10%;right:15%;width:3px;height:40%;background:linear-gradient(180deg,#888,#555);border-radius:2px;transform-origin:top center;transform:rotate(25deg);pointer-events:none}
+
+/* WAVEFORM */
+.waveform-wrap{position:relative;border-radius:6px;overflow:hidden;background:#000;cursor:crosshair}
+canvas.waveform{display:block;width:100%;height:70px}
+.waveform-pos{position:absolute;top:0;bottom:0;width:2px;background:#fff;pointer-events:none;left:0;opacity:.8}
+.cue-marker{position:absolute;top:0;bottom:0;width:2px;pointer-events:none}
+
+/* BPM / KEY ROW */
+.info-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.info-chip{background:var(--bg4);border:1px solid var(--border);border-radius:5px;padding:3px 8px;font-size:.75rem}
+.info-chip span{color:var(--neon);font-weight:700}
+.bpm-tap{padding:4px 10px;background:var(--bg4);border:1px solid var(--border);border-radius:5px;color:var(--text);font-size:.75rem;cursor:pointer}
+.bpm-tap:active{background:var(--accent)}
+.key-shift{display:flex;align-items:center;gap:4px}
+.key-shift button{width:20px;height:20px;background:var(--bg4);border:1px solid var(--border);color:var(--text);border-radius:3px;cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center}
+.key-display{font-size:.8rem;font-weight:700;color:var(--yellow);min-width:28px;text-align:center}
+
+/* PITCH */
+.pitch-row{display:flex;align-items:center;gap:8px}
+.pitch-label{font-size:.7rem;color:var(--text2);white-space:nowrap}
+.pitch-slider{flex:1;-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:var(--bg4);outline:none;cursor:pointer}
+.pitch-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--neon);cursor:pointer}
+.pitch-val{font-size:.75rem;color:var(--neon);min-width:36px;text-align:right}
+
+/* TRANSPORT */
+.transport{display:flex;gap:6px;align-items:center;justify-content:center;flex-wrap:wrap}
+.t-btn{width:40px;height:40px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:1rem;transition:.15s;flex-shrink:0}
+.play-btn{background:var(--neon3);color:#000;width:50px;height:50px;font-size:1.3rem}
+.play-btn.playing{background:var(--yellow)}
+.cue-btn{background:var(--bg4);border:1px solid var(--border);color:var(--text)}
+.sync-btn{background:var(--accent2);color:#fff;font-size:.7rem;font-weight:700;width:auto;border-radius:6px;padding:0 10px}
+.loop-btn{background:var(--bg4);border:1px solid var(--border);color:var(--text);font-size:.7rem;border-radius:6px;width:auto;padding:0 8px;height:36px}
+.loop-btn.active{background:var(--neon3);color:#000;border-color:var(--neon3)}
+
+/* HOT CUES */
+.hotcues{display:flex;gap:4px}
+.hc{width:32px;height:28px;border-radius:4px;border:none;cursor:pointer;font-size:.7rem;font-weight:700;transition:.15s;position:relative}
+.hc.empty{background:var(--bg4);border:1px solid var(--border);color:var(--text3)}
+.hc.set{color:#fff}
+.hc:nth-child(1).set{background:#ef4444}
+.hc:nth-child(2).set{background:#f97316}
+.hc:nth-child(3).set{background:#eab308}
+.hc:nth-child(4).set{background:#22c55e}
+.hc:nth-child(5).set{background:#06b6d4}
+.hc:nth-child(6).set{background:#8b5cf6}
+.hc:nth-child(7).set{background:#ec4899}
+.hc:nth-child(8).set{background:#14b8a6}
+
+/* MIXER CENTER */
+#mixer{background:var(--bg3);padding:14px 10px;display:flex;flex-direction:column;gap:12px;align-items:center;min-width:200px;border-left:1px solid var(--border);border-right:1px solid var(--border)}
+.mixer-title{font-size:.65rem;letter-spacing:2px;color:var(--text3);font-weight:700}
+
+/* EQ */
+.eq-section{display:flex;gap:16px;width:100%}
+.eq-strip{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px}
+.eq-strip-label{font-size:.65rem;letter-spacing:1px;font-weight:700}
+#deck-a-eq-label{color:var(--deck-a)}
+#deck-b-eq-label{color:var(--deck-b)}
+.eq-knobs{display:flex;gap:8px;justify-content:center}
+.knob-wrap{display:flex;flex-direction:column;align-items:center;gap:3px}
+.knob-label{font-size:.6rem;color:var(--text3)}
+.knob{width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3a3a5c,#1a1a28);border:2px solid var(--border);cursor:pointer;position:relative;user-select:none}
+.knob::after{content:'';position:absolute;top:4px;left:50%;width:2px;height:10px;background:var(--neon);border-radius:1px;transform:translateX(-50%);transform-origin:bottom center}
+
+/* VOLUME FADERS */
+.fader-section{display:flex;gap:20px;align-items:flex-end;justify-content:center}
+.fader-wrap{display:flex;flex-direction:column;align-items:center;gap:4px}
+.fader-label{font-size:.65rem;color:var(--text3)}
+.vol-fader{-webkit-appearance:none;appearance:none;writing-mode:vertical-lr;direction:rtl;width:24px;height:80px;background:var(--bg4);border-radius:12px;outline:none;cursor:pointer}
+.vol-fader::-webkit-slider-thumb{-webkit-appearance:none;width:24px;height:14px;background:var(--neon);border-radius:4px;cursor:pointer}
+
+/* CROSSFADER */
+.xfader-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:6px}
+.xfader-labels{width:100%;display:flex;justify-content:space-between;font-size:.65rem;font-weight:700}
+.xfader-labels span:first-child{color:var(--deck-a)}
+.xfader-labels span:last-child{color:var(--deck-b)}
+#crossfader{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:linear-gradient(90deg,var(--deck-a),var(--deck-b));outline:none;cursor:pointer}
+#crossfader::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:24px;background:#fff;border-radius:3px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+.xfader-curve{display:flex;gap:4px;flex-wrap:wrap;justify-content:center}
+.curve-btn{padding:3px 7px;background:var(--bg4);border:1px solid var(--border);color:var(--text2);border-radius:4px;font-size:.65rem;cursor:pointer}
+.curve-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+/* MASTER */
+.master-wrap{width:100%;display:flex;flex-direction:column;align-items:center;gap:4px}
+.master-vol{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:3px;background:var(--bg4);outline:none;cursor:pointer}
+.master-vol::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--neon3);cursor:pointer}
+
+/* VU METERS */
+.vu-meters{display:flex;gap:8px;align-items:flex-end;justify-content:center}
+.vu{display:flex;flex-direction:column-reverse;gap:2px;align-items:center}
+.vu-bar{width:10px;height:5px;background:var(--bg4);border-radius:1px;transition:.05s}
+.vu-bar.on-low{background:var(--neon3)}
+.vu-bar.on-mid{background:var(--yellow)}
+.vu-bar.on-high{background:var(--red)}
+.vu-label{font-size:.6rem;color:var(--text3)}
+
+/* EFFECTS PANEL */
+#effects-section{background:var(--bg2);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.fx-group{display:flex;align-items:center;gap:8px;background:var(--bg3);padding:8px 12px;border-radius:8px;border:1px solid var(--border)}
+.fx-label{font-size:.65rem;color:var(--text3);font-weight:700;letter-spacing:1px}
+.fx-toggle{width:38px;height:20px;border-radius:10px;background:var(--bg4);border:1px solid var(--border);cursor:pointer;position:relative;transition:.2s}
+.fx-toggle.active{background:var(--accent);border-color:var(--accent)}
+.fx-toggle::after{content:'';position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:.2s}
+.fx-toggle.active::after{left:20px}
+.fx-knob{width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#3a3a5c,#1a1a28);border:2px solid var(--border);cursor:pointer;position:relative}
+.fx-knob::after{content:'';position:absolute;top:3px;left:50%;width:2px;height:8px;background:var(--neon2);border-radius:1px;transform:translateX(-50%);transform-origin:bottom center}
+
+/* STEMS */
+#stems-section{background:var(--bg2);border-top:1px solid var(--border);padding:10px 16px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+.stems-title{font-size:.7rem;letter-spacing:2px;color:var(--text3);font-weight:700;margin-right:4px}
+.stem-ctrl{display:flex;flex-direction:column;align-items:center;gap:4px;background:var(--bg3);padding:8px 10px;border-radius:8px;border:1px solid var(--border);min-width:70px}
+.stem-name{font-size:.65rem;font-weight:700;letter-spacing:1px}
+.stem-mute{width:30px;height:16px;border-radius:8px;background:var(--bg4);border:1px solid var(--border);cursor:pointer;position:relative;transition:.2s}
+.stem-mute.active{background:var(--neon3)}
+.stem-mute::after{content:'';position:absolute;top:2px;left:2px;width:10px;height:10px;border-radius:50%;background:#fff;transition:.2s}
+.stem-mute.active::after{left:16px}
+.stem-vol{-webkit-appearance:none;appearance:none;width:60px;height:4px;background:var(--bg4);border-radius:2px;outline:none;cursor:pointer}
+.stem-vol::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--neon);cursor:pointer}
+.stem-label-row{display:flex;gap:6px;align-items:center}
+.stem-icon{font-size:.9rem}
+
+/* TIMELINE */
+#timeline-section{background:var(--bg);border-top:1px solid var(--border);padding:10px 16px}
+.tl-title{font-size:.7rem;letter-spacing:2px;color:var(--text3);font-weight:700;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center}
+.tl-tracks{display:flex;flex-direction:column;gap:6px}
+.tl-track{display:flex;align-items:center;gap:8px}
+.tl-track-label{font-size:.7rem;font-weight:700;width:60px;flex-shrink:0}
+.tl-canvas-wrap{flex:1;background:#000;border-radius:4px;overflow:hidden;border:1px solid var(--border);position:relative;cursor:pointer}
+canvas.tl-canvas{display:block;width:100%;height:40px}
+.tl-playhead{position:absolute;top:0;bottom:0;width:1px;background:#fff;pointer-events:none}
+
+/* CAMELOT MODAL */
+#camelot-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:100;align-items:center;justify-content:center}
+#camelot-modal.show{display:flex}
+#camelot-inner{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:24px;max-width:520px;width:90%;position:relative}
+#camelot-inner h2{text-align:center;margin-bottom:16px;color:var(--neon)}
+.camelot-wheel-svg{display:block;margin:0 auto}
+#camelot-close{position:absolute;top:12px;right:12px;background:none;border:none;color:var(--text2);font-size:1.4rem;cursor:pointer}
+
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:10px 16px;font-size:.85rem;opacity:0;transition:.3s;pointer-events:none;z-index:200;max-width:300px}
+#toast.show{opacity:1}
+
+/* SCROLLABLE BODY */
+body{display:flex;flex-direction:column}
+#app{flex:1;overflow-y:auto}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  #main{grid-template-columns:1fr;grid-template-rows:auto auto auto}
+  #mixer{min-width:0;width:100%;flex-direction:row;flex-wrap:wrap}
+  #deck-a,#deck-b{border:none;border-bottom:1px solid var(--border)}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- HEADER -->
+<div id="header">
+  <div>
+    <div id="logo">ProMix DJ<span>STUDIO</span></div>
+  </div>
+  <div class="hdr-group">
+    <input id="api-key-input" type="password" placeholder="YouTube Data API Key (optional)" title="Enter your YouTube Data API v3 key for search">
+    <button class="hdr-btn" id="rec-btn" onclick="toggleRecord()">● REC</button>
+    <button class="hdr-btn" id="dl-mix-btn" onclick="downloadMix()">⬇ Download Mix</button>
+    <button class="hdr-btn" id="camelot-btn" onclick="showCamelot()">⟳ Camelot Wheel</button>
+    <button class="hdr-btn" id="automix-btn" onclick="autoMix()">⚡ Auto Mix</button>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div id="search-section">
+  <input id="search-input" type="text" placeholder="🔍  Search song title or artist..." onkeydown="if(event.key==='Enter')searchYouTube()">
+  <button id="search-btn" onclick="searchYouTube()">SEARCH</button>
+  <span id="search-status"></span>
+</div>
+<div id="results-panel"></div>
+
+<!-- MAIN DECKS + MIXER -->
+<div id="main">
+
+  <!-- DECK A -->
+  <div class="deck" id="deck-a">
+    <div class="deck-label">
+      <span class="deck-name">DECK A</span>
+      <span class="track-title" id="title-a">No Track Loaded</span>
+      <div class="file-input-wrap">
+        <span class="file-btn">📂 Load</span>
+        <input type="file" accept="audio/*" onchange="loadFile(event,'a')">
+      </div>
+    </div>
+
+    <div class="turntable-wrap">
+      <canvas class="vinyl" id="vinyl-a" width="200" height="200"></canvas>
+      <div class="needle" id="needle-a"></div>
+    </div>
+
+    <div class="waveform-wrap" id="wf-wrap-a" onclick="seekDeck(event,'a')">
+      <canvas class="waveform" id="waveform-a" height="70"></canvas>
+      <div class="waveform-pos" id="wf-pos-a"></div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-chip">BPM: <span id="bpm-a">--</span></div>
+      <div class="info-chip">KEY: <span id="key-a">--</span></div>
+      <button class="bpm-tap" onclick="tapTempo('a')">TAP</button>
+      <div class="key-shift">
+        <button onclick="shiftKey('a',-1)">-</button>
+        <span class="key-display" id="kshift-a">0</span>
+        <button onclick="shiftKey('a',1)">+</button>
+      </div>
+      <div class="info-chip">⏱ <span id="time-a">0:00</span></div>
+    </div>
+
+    <div class="pitch-row">
+      <span class="pitch-label">PITCH</span>
+      <input class="pitch-slider" type="range" id="pitch-a" min="-8" max="8" step="0.1" value="0" oninput="setPitch('a',this.value)">
+      <span class="pitch-val" id="pitch-val-a">0%</span>
+    </div>
+
+    <div class="transport">
+      <button class="t-btn cue-btn" title="Set/Jump Cue" onclick="setCue('a')">CUE</button>
+      <button class="t-btn play-btn" id="play-a" onclick="togglePlay('a')">▶</button>
+      <button class="t-btn sync-btn" onclick="syncDeck('a')">SYNC</button>
+      <button class="t-btn loop-btn" id="loop-a" onclick="toggleLoop('a')">⟳ LOOP</button>
+    </div>
+
+    <div class="hotcues" id="hc-a">
+      <button class="hc empty" onclick="hotCue('a',0)">1</button>
+      <button class="hc empty" onclick="hotCue('a',1)">2</button>
+      <button class="hc empty" onclick="hotCue('a',2)">3</button>
+      <button class="hc empty" onclick="hotCue('a',3)">4</button>
+      <button class="hc empty" onclick="hotCue('a',4)">5</button>
+      <button class="hc empty" onclick="hotCue('a',5)">6</button>
+      <button class="hc empty" onclick="hotCue('a',6)">7</button>
+      <button class="hc empty" onclick="hotCue('a',7)">8</button>
+    </div>
+  </div>
+
+  <!-- MIXER CENTER -->
+  <div id="mixer">
+    <div class="mixer-title">MIXER</div>
+
+    <div class="eq-section">
+      <div class="eq-strip">
+        <div class="eq-strip-label" id="deck-a-eq-label">A EQ</div>
+        <div class="eq-knobs">
+          <div class="knob-wrap"><canvas class="knob" id="eq-a-hi" data-deck="a" data-band="hi" width="36" height="36"></canvas><span class="knob-label">HI</span></div>
+          <div class="knob-wrap"><canvas class="knob" id="eq-a-mid" data-deck="a" data-band="mid" width="36" height="36"></canvas><span class="knob-label">MID</span></div>
+          <div class="knob-wrap"><canvas class="knob" id="eq-a-lo" data-deck="a" data-band="lo" width="36" height="36"></canvas><span class="knob-label">LO</span></div>
+        </div>
+      </div>
+      <div class="eq-strip">
+        <div class="eq-strip-label" id="deck-b-eq-label">B EQ</div>
+        <div class="eq-knobs">
+          <div class="knob-wrap"><canvas class="knob" id="eq-b-hi" data-deck="b" data-band="hi" width="36" height="36"></canvas><span class="knob-label">HI</span></div>
+          <div class="knob-wrap"><canvas class="knob" id="eq-b-mid" data-deck="b" data-band="mid" width="36" height="36"></canvas><span class="knob-label">MID</span></div>
+          <div class="knob-wrap"><canvas class="knob" id="eq-b-lo" data-deck="b" data-band="lo" width="36" height="36"></canvas><span class="knob-label">LO</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="vu-meters">
+      <div class="vu" id="vu-a">
+        <span class="vu-label">A</span>
+      </div>
+      <div class="vu" id="vu-m">
+        <span class="vu-label">M</span>
+      </div>
+      <div class="vu" id="vu-b">
+        <span class="vu-label">B</span>
+      </div>
+    </div>
+
+    <div class="fader-section">
+      <div class="fader-wrap">
+        <input class="vol-fader" type="range" id="vol-a" min="0" max="1.5" step="0.01" value="1" oninput="setVol('a',this.value)">
+        <span class="fader-label" style="color:var(--deck-a)">A</span>
+      </div>
+      <div class="fader-wrap">
+        <input class="vol-fader" type="range" id="vol-master" min="0" max="1.5" step="0.01" value="1" oninput="setMasterVol(this.value)">
+        <span class="fader-label">MST</span>
+      </div>
+      <div class="fader-wrap">
+        <input class="vol-fader" type="range" id="vol-b" min="0" max="1.5" step="0.01" value="1" oninput="setVol('b',this.value)">
+        <span class="fader-label" style="color:var(--deck-b)">B</span>
+      </div>
+    </div>
+
+    <div class="xfader-wrap">
+      <div class="xfader-labels"><span>A</span><span>B</span></div>
+      <input type="range" id="crossfader" min="0" max="1" step="0.01" value="0.5" oninput="updateCrossfader(this.value)">
+      <div class="xfader-curve">
+        <button class="curve-btn active" onclick="setCurve('linear',this)">Linear</button>
+        <button class="curve-btn" onclick="setCurve('scratch',this)">Scratch</button>
+        <button class="curve-btn" onclick="setCurve('smooth',this)">Smooth</button>
+      </div>
+    </div>
+
+    <div class="master-wrap">
+      <span class="mixer-title">MASTER VOL</span>
+      <input class="master-vol" type="range" id="master-vol2" min="0" max="2" step="0.01" value="1" oninput="setMasterVol(this.value)">
+    </div>
+  </div>
+
+  <!-- DECK B -->
+  <div class="deck" id="deck-b">
+    <div class="deck-label">
+      <span class="deck-name">DECK B</span>
+      <span class="track-title" id="title-b">No Track Loaded</span>
+      <div class="file-input-wrap">
+        <span class="file-btn">📂 Load</span>
+        <input type="file" accept="audio/*" onchange="loadFile(event,'b')">
+      </div>
+    </div>
+
+    <div class="turntable-wrap">
+      <canvas class="vinyl" id="vinyl-b" width="200" height="200"></canvas>
+      <div class="needle" id="needle-b"></div>
+    </div>
+
+    <div class="waveform-wrap" id="wf-wrap-b" onclick="seekDeck(event,'b')">
+      <canvas class="waveform" id="waveform-b" height="70"></canvas>
+      <div class="waveform-pos" id="wf-pos-b"></div>
+    </div>
+
+    <div class="info-row">
+      <div class="info-chip">BPM: <span id="bpm-b">--</span></div>
+      <div class="info-chip">KEY: <span id="key-b">--</span></div>
+      <button class="bpm-tap" onclick="tapTempo('b')">TAP</button>
+      <div class="key-shift">
+        <button onclick="shiftKey('b',-1)">-</button>
+        <span class="key-display" id="kshift-b">0</span>
+        <button onclick="shiftKey('b',1)">+</button>
+      </div>
+      <div class="info-chip">⏱ <span id="time-b">0:00</span></div>
+    </div>
+
+    <div class="pitch-row">
+      <span class="pitch-label">PITCH</span>
+      <input class="pitch-slider" type="range" id="pitch-b" min="-8" max="8" step="0.1" value="0" oninput="setPitch('b',this.value)">
+      <span class="pitch-val" id="pitch-val-b">0%</span>
+    </div>
+
+    <div class="transport">
+      <button class="t-btn cue-btn" title="Set/Jump Cue" onclick="setCue('b')">CUE</button>
+      <button class="t-btn play-btn" id="play-b" onclick="togglePlay('b')">▶</button>
+      <button class="t-btn sync-btn" onclick="syncDeck('b')">SYNC</button>
+      <button class="t-btn loop-btn" id="loop-b" onclick="toggleLoop('b')">⟳ LOOP</button>
+    </div>
+
+    <div class="hotcues" id="hc-b">
+      <button class="hc empty" onclick="hotCue('b',0)">1</button>
+      <button class="hc empty" onclick="hotCue('b',1)">2</button>
+      <button class="hc empty" onclick="hotCue('b',2)">3</button>
+      <button class="hc empty" onclick="hotCue('b',3)">4</button>
+      <button class="hc empty" onclick="hotCue('b',4)">5</button>
+      <button class="hc empty" onclick="hotCue('b',5)">6</button>
+      <button class="hc empty" onclick="hotCue('b',6)">7</button>
+      <button class="hc empty" onclick="hotCue('b',7)">8</button>
+    </div>
+  </div>
+</div><!-- end #main -->
+
+<!-- EFFECTS SECTION -->
+<div id="effects-section">
+  <span style="font-size:.7rem;letter-spacing:2px;color:var(--text3);font-weight:700;margin-right:4px">FX</span>
+
+  <div class="fx-group">
+    <span class="fx-label">REVERB</span>
+    <div class="fx-toggle" id="fx-reverb" onclick="toggleFX('reverb',this)"></div>
+    <canvas class="fx-knob" id="knob-reverb-wet" width="30" height="30" title="Wet"></canvas>
+    <canvas class="fx-knob" id="knob-reverb-size" width="30" height="30" title="Size"></canvas>
+  </div>
+
+  <div class="fx-group">
+    <span class="fx-label">DELAY</span>
+    <div class="fx-toggle" id="fx-delay" onclick="toggleFX('delay',this)"></div>
+    <canvas class="fx-knob" id="knob-delay-time" width="30" height="30" title="Time"></canvas>
+    <canvas class="fx-knob" id="knob-delay-fb" width="30" height="30" title="Feedback"></canvas>
+  </div>
+
+  <div class="fx-group">
+    <span class="fx-label">FILTER</span>
+    <div class="fx-toggle" id="fx-filter" onclick="toggleFX('filter',this)"></div>
+    <canvas class="fx-knob" id="knob-filter-freq" width="30" height="30" title="Freq"></canvas>
+    <canvas class="fx-knob" id="knob-filter-q" width="30" height="30" title="Q"></canvas>
+  </div>
+
+  <div class="fx-group">
+    <span class="fx-label">FLANGER</span>
+    <div class="fx-toggle" id="fx-flanger" onclick="toggleFX('flanger',this)"></div>
+    <canvas class="fx-knob" id="knob-flanger-rate" width="30" height="30" title="Rate"></canvas>
+    <canvas class="fx-knob" id="knob-flanger-depth" width="30" height="30" title="Depth"></canvas>
+  </div>
+
+  <div class="fx-group">
+    <span class="fx-label">ECHO</span>
+    <div class="fx-toggle" id="fx-echo" onclick="toggleFX('echo',this)"></div>
+    <canvas class="fx-knob" id="knob-echo-time" width="30" height="30" title="Beat Div"></canvas>
+  </div>
+
+  <div class="fx-group">
+    <span class="fx-label">DECK</span>
+    <button onclick="setFXDeck('a')" id="fxdeck-a" style="padding:3px 8px;background:var(--deck-a);color:#fff;border:none;border-radius:4px;cursor:pointer;font-size:.7rem;font-weight:700">A</button>
+    <button onclick="setFXDeck('b')" id="fxdeck-b" style="padding:3px 8px;background:var(--bg4);color:var(--text2);border:1px solid var(--border);border-radius:4px;cursor:pointer;font-size:.7rem;font-weight:700">B</button>
+  </div>
+</div>
+
+<!-- STEMS SECTION -->
+<div id="stems-section">
+  <span class="stems-title">STEMS</span>
+  <div class="stem-ctrl">
+    <div class="stem-label-row"><span class="stem-icon">🎤</span><span class="stem-name" style="color:#f472b6">VOCALS</span></div>
+    <div class="stem-mute active" id="stem-vocals" onclick="toggleStem('vocals',this)"></div>
+    <input class="stem-vol" type="range" min="0" max="1" step="0.01" value="1" oninput="setStemVol('vocals',this.value)">
+  </div>
+  <div class="stem-ctrl">
+    <div class="stem-label-row"><span class="stem-icon">🥁</span><span class="stem-name" style="color:#f97316">DRUMS</span></div>
+    <div class="stem-mute active" id="stem-drums" onclick="toggleStem('drums',this)"></div>
+    <input class="stem-vol" type="range" min="0" max="1" step="0.01" value="1" oninput="setStemVol('drums',this.value)">
+  </div>
+  <div class="stem-ctrl">
+    <div class="stem-label-row"><span class="stem-icon">🎸</span><span class="stem-name" style="color:#34d399">BASS</span></div>
+    <div class="stem-mute active" id="stem-bass" onclick="toggleStem('bass',this)"></div>
+    <input class="stem-vol" type="range" min="0" max="1" step="0.01" value="1" oninput="setStemVol('bass',this.value)">
+  </div>
+  <div class="stem-ctrl">
+    <div class="stem-label-row"><span class="stem-icon">🎹</span><span class="stem-name" style="color:#60a5fa">MELODY</span></div>
+    <div class="stem-mute active" id="stem-melody" onclick="toggleStem('melody',this)"></div>
+    <input class="stem-vol" type="range" min="0" max="1" step="0.01" value="1" oninput="setStemVol('melody',this.value)">
+  </div>
+  <button onclick="requestStemSeparation()" style="padding:7px 14px;background:var(--accent);color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:.75rem;font-weight:700;margin-left:8px">⚗ Separate Stems (AI)</button>
+  <span style="font-size:.7rem;color:var(--text3);max-width:200px">Load a file, then separate into stems for creative remixing.</span>
+</div>
+
+<!-- TIMELINE -->
+<div id="timeline-section">
+  <div class="tl-title">
+    <span>TIMELINE OVERVIEW</span>
+    <span style="font-size:.7rem;color:var(--text3)">Click to seek • Drag tracks to adjust</span>
+  </div>
+  <div class="tl-tracks">
+    <div class="tl-track">
+      <span class="tl-track-label" style="color:var(--deck-a)">DECK A</span>
+      <div class="tl-canvas-wrap" onclick="seekTimeline(event,'a')">
+        <canvas class="tl-canvas" id="tl-a" height="40"></canvas>
+        <div class="tl-playhead" id="tlph-a"></div>
+      </div>
+    </div>
+    <div class="tl-track">
+      <span class="tl-track-label" style="color:var(--deck-b)">DECK B</span>
+      <div class="tl-canvas-wrap" onclick="seekTimeline(event,'b')">
+        <canvas class="tl-canvas" id="tl-b" height="40"></canvas>
+        <div class="tl-playhead" id="tlph-b"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end #app -->
+
+<!-- CAMELOT MODAL -->
+<div id="camelot-modal">
+  <div id="camelot-inner">
+    <button id="camelot-close" onclick="hideCamelot()">✕</button>
+    <h2>Camelot Wheel — Harmonic Mixing</h2>
+    <svg class="camelot-wheel-svg" width="460" height="460" viewBox="0 0 460 460" id="camelot-svg"></svg>
+    <p style="text-align:center;font-size:.8rem;color:var(--text2);margin-top:12px">Adjacent keys (±1) mix harmonically. Same number = compatible. A=minor, B=major.</p>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  AUDIO CONTEXT & GLOBAL STATE
+// ═══════════════════════════════════════════════
+let ctx = null;
+function getCtx(){
+  if(!ctx) ctx = new (window.AudioContext||window.webkitAudioContext)();
+  if(ctx.state==='suspended') ctx.resume();
+  return ctx;
+}
+
+const decks = {
+  a: { buffer:null, source:null, gainNode:null, analyser:null, startOffset:0, startTime:0,
+       isPlaying:false, bpm:0, key:'--', keyShift:0, cuePoint:0, hotCues:new Array(8).fill(null),
+       loopActive:false, loopStart:0, loopEnd:0, pitchRate:1,
+       eqHi:null, eqMid:null, eqLo:null, vinylAngle:0, wfData:null,
+       tapTimes:[], lastTap:0 },
+  b: { buffer:null, source:null, gainNode:null, analyser:null, startOffset:0, startTime:0,
+       isPlaying:false, bpm:0, key:'--', keyShift:0, cuePoint:0, hotCues:new Array(8).fill(null),
+       loopActive:false, loopStart:0, loopEnd:0, pitchRate:1,
+       eqHi:null, eqMid:null, eqLo:null, vinylAngle:0, wfData:null,
+       tapTimes:[], lastTap:0 }
+};
+
+const mixer = { masterGain:null, crossfade:0.5, curve:'linear', fxDeck:'a' };
+const fx = { reverb:{active:false,wet:0.3,size:0.7}, delay:{active:false,time:0.3,fb:0.4},
+             filter:{active:false,freq:1000,q:1}, flanger:{active:false,rate:0.5,depth:0.5},
+             echo:{active:false,time:0.25} };
+let mediaRecorder = null, recordedChunks = [], isRecording = false;
+
+// Audio graph nodes
+let masterGainNode, fxBus = {};
+
+// ═══════════════════════════════════════════════
+//  INIT AUDIO GRAPH
+// ═══════════════════════════════════════════════
+function initAudio(){
+  const c = getCtx();
+  masterGainNode = c.createGain();
+  masterGainNode.gain.value = 1;
+  masterGainNode.connect(c.destination);
+
+  // Init deck audio chains
+  ['a','b'].forEach(id => {
+    const d = decks[id];
+    d.gainNode = c.createGain();
+    d.gainNode.gain.value = 1;
+    d.eqHi  = createEQBand(c, 'highshelf', 10000, 0);
+    d.eqMid = createEQBand(c, 'peaking',   1000,  0);
+    d.eqLo  = createEQBand(c, 'lowshelf',  200,   0);
+    d.analyser = c.createAnalyser();
+    d.analyser.fftSize = 2048;
+    d.gainNode.connect(d.eqHi);
+    d.eqHi.connect(d.eqMid);
+    d.eqMid.connect(d.eqLo);
+    d.eqLo.connect(d.analyser);
+    d.analyser.connect(masterGainNode);
+  });
+
+  // Init FX nodes
+  fxBus.reverbConvolver = c.createConvolver();
+  fxBus.reverbConvolver.buffer = makeReverbBuffer(c, 2.5);
+  fxBus.reverbGain = c.createGain(); fxBus.reverbGain.gain.value = 0;
+  fxBus.reverbConvolver.connect(fxBus.reverbGain);
+  fxBus.reverbGain.connect(masterGainNode);
+
+  fxBus.delayNode = c.createDelay(2);
+  fxBus.delayNode.delayTime.value = 0.3;
+  fxBus.delayFB = c.createGain(); fxBus.delayFB.gain.value = 0.4;
+  fxBus.delayGain = c.createGain(); fxBus.delayGain.gain.value = 0;
+  fxBus.delayNode.connect(fxBus.delayFB);
+  fxBus.delayFB.connect(fxBus.delayNode);
+  fxBus.delayNode.connect(fxBus.delayGain);
+  fxBus.delayGain.connect(masterGainNode);
+
+  fxBus.filterNode = c.createBiquadFilter();
+  fxBus.filterNode.type = 'bandpass';
+  fxBus.filterNode.frequency.value = 1000;
+  fxBus.filterGain = c.createGain(); fxBus.filterGain.gain.value = 0;
+  fxBus.filterNode.connect(fxBus.filterGain);
+  fxBus.filterGain.connect(masterGainNode);
+}
+
+function createEQBand(c, type, freq, gain){
+  const f = c.createBiquadFilter();
+  f.type = type; f.frequency.value = freq; f.gain.value = gain;
+  return f;
+}
+
+function makeReverbBuffer(c, duration){
+  const sr = c.sampleRate, len = sr * duration;
+  const buf = c.createBuffer(2, len, sr);
+  for(let ch=0;ch<2;ch++){
+    const d = buf.getChannelData(ch);
+    for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, 2);
+  }
+  return buf;
+}
+
+// ═══════════════════════════════════════════════
+//  LOAD FILE
+// ═══════════════════════════════════════════════
+async function loadFile(event, id){
+  const file = event.target.files[0];
+  if(!file) return;
+  initAudio();
+  toast(`Loading ${file.name}...`);
+  const arrayBuf = await file.arrayBuffer();
+  const c = getCtx();
+  try {
+    const audioBuf = await c.decodeAudioData(arrayBuf);
+    const d = decks[id];
+    if(d.source){ try{d.source.stop()}catch(e){} }
+    d.buffer = audioBuf;
+    d.isPlaying = false;
+    d.startOffset = 0;
+    d.cuePoint = 0;
+    document.getElementById(`play-${id}`).textContent = '▶';
+    document.getElementById(`play-${id}`).classList.remove('playing');
+    document.getElementById(`title-${id}`).textContent = file.name.replace(/\.[^.]+$/,'');
+    detectBPM(id);
+    detectKey(id);
+    drawWaveform(id);
+    drawTimeline(id);
+    toast(`✅ Loaded: ${file.name}`);
+  } catch(e){ toast('❌ Could not decode audio file'); }
+}
+
+// ═══════════════════════════════════════════════
+//  PLAYBACK
+// ═══════════════════════════════════════════════
+function togglePlay(id){
+  initAudio();
+  const d = decks[id];
+  if(!d.buffer){ toast('Load a track first!'); return; }
+  if(d.isPlaying){ pauseDeck(id); } else { playDeck(id); }
+}
+
+function playDeck(id){
+  const d = decks[id];
+  const c = getCtx();
+  if(d.source){ try{d.source.stop()}catch(e){} }
+  d.source = c.createBufferSource();
+  d.source.buffer = d.buffer;
+  d.source.playbackRate.value = d.pitchRate;
+  d.source.connect(d.gainNode);
+
+  // Connect to FX bus if this deck is fx deck
+  if(mixer.fxDeck === id){
+    if(fx.reverb.active) d.source.connect(fxBus.reverbConvolver);
+    if(fx.delay.active) d.source.connect(fxBus.delayNode);
+    if(fx.filter.active) d.source.connect(fxBus.filterNode);
+  }
+
+  d.source.start(0, d.startOffset % d.buffer.duration);
+  d.startTime = c.currentTime - d.startOffset;
+  d.isPlaying = true;
+
+  if(d.loopActive && d.loopEnd > d.loopStart){
+    d.source.loopStart = d.loopStart;
+    d.source.loopEnd = d.loopEnd;
+    d.source.loop = true;
+  }
+
+  d.source.onended = () => {
+    if(d.isPlaying && !d.loopActive){ d.isPlaying = false; d.startOffset = 0;
+      document.getElementById(`play-${id}`).textContent='▶';
+      document.getElementById(`play-${id}`).classList.remove('playing'); }
+  };
+
+  document.getElementById(`play-${id}`).textContent = '⏸';
+  document.getElementById(`play-${id}`).classList.add('playing');
+}
+
+function pauseDeck(id){
+  const d = decks[id];
+  const c = getCtx();
+  d.startOffset = c.currentTime - d.startTime;
+  if(d.source){ try{d.source.stop()}catch(e){} }
+  d.isPlaying = false;
+  document.getElementById(`play-${id}`).textContent = '▶';
+  document.getElementById(`play-${id}`).classList.remove('playing');
+}
+
+function getCurrentTime(id){
+  const d = decks[id];
+  if(!d.buffer) return 0;
+  if(d.isPlaying) return getCtx().currentTime - d.startTime;
+  return d.startOffset;
+}
+
+function seekDeck(event, id){
+  const d = decks[id];
+  if(!d.buffer) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const ratio = (event.clientX - rect.left) / rect.width;
+  const newTime = ratio * d.buffer.duration;
+  const wasPlaying = d.isPlaying;
+  if(wasPlaying) pauseDeck(id);
+  d.startOffset = newTime;
+  if(wasPlaying) playDeck(id);
+}
+
+function seekTimeline(event, id){
+  const d = decks[id];
+  if(!d.buffer) return;
+  const rect = event.currentTarget.getBoundingClientRect();
+  const ratio = (event.clientX - rect.left) / rect.width;
+  const newTime = ratio * d.buffer.duration;
+  const wasPlaying = d.isPlaying;
+  if(wasPlaying) pauseDeck(id);
+  d.startOffset = newTime;
+  if(wasPlaying) playDeck(id);
+}
+
+// ═══════════════════════════════════════════════
+//  CUE, HOT CUES, LOOP
+// ═══════════════════════════════════════════════
+function setCue(id){
+  const d = decks[id];
+  if(!d.buffer) return;
+  if(d.isPlaying){ pauseDeck(id); } else {
+    d.cuePoint = d.startOffset;
+    toast(`Cue set at ${formatTime(d.cuePoint)}`);
+  }
+}
+
+function hotCue(id, idx){
+  const d = decks[id];
+  if(!d.buffer) return;
+  const btn = document.querySelectorAll(`#hc-${id} .hc`)[idx];
+  if(d.hotCues[idx] === null){
+    d.hotCues[idx] = getCurrentTime(id);
+    btn.classList.remove('empty'); btn.classList.add('set');
+    toast(`Hot cue ${idx+1} set`);
+  } else {
+    const wasPlaying = d.isPlaying;
+    if(wasPlaying) pauseDeck(id);
+    d.startOffset = d.hotCues[idx];
+    if(wasPlaying) playDeck(id);
+  }
+}
+
+function toggleLoop(id){
+  const d = decks[id];
+  const btn = document.getElementById(`loop-${id}`);
+  if(!d.loopActive){
+    d.loopStart = getCurrentTime(id);
+    d.loopEnd = d.loopStart + (4 * 60 / (d.bpm||120));
+    if(d.source){ d.source.loopStart=d.loopStart; d.source.loopEnd=d.loopEnd; d.source.loop=true; }
+    d.loopActive = true; btn.classList.add('active');
+    toast(`Loop: ${formatTime(d.loopStart)} — ${formatTime(d.loopEnd)}`);
+  } else {
+    if(d.source){ d.source.loop=false; }
+    d.loopActive = false; btn.classList.remove('active');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  PITCH & SYNC
+// ═══════════════════════════════════════════════
+function setPitch(id, val){
+  const d = decks[id];
+  const rate = 1 + parseFloat(val)/100;
+  d.pitchRate = rate;
+  if(d.source) d.source.playbackRate.value = rate;
+  document.getElementById(`pitch-val-${id}`).textContent = (parseFloat(val)>0?'+':'')+parseFloat(val).toFixed(1)+'%';
+}
+
+function syncDeck(id){
+  const other = id==='a'?'b':'a';
+  const dO = decks[other];
+  if(!dO.bpm||!decks[id].bpm){ toast('Need BPM on both decks'); return; }
+  const ratio = dO.bpm / decks[id].bpm;
+  const pitchPct = (ratio-1)*100;
+  document.getElementById(`pitch-${id}`).value = pitchPct;
+  setPitch(id, pitchPct);
+  toast(`Synced Deck ${id.toUpperCase()} to ${dO.bpm.toFixed(1)} BPM`);
+}
+
+function tapTempo(id){
+  const now = performance.now();
+  const d = decks[id];
+  if(now - d.lastTap > 2000) d.tapTimes = [];
+  d.tapTimes.push(now); d.lastTap = now;
+  if(d.tapTimes.length>1){
+    const intervals = [];
+    for(let i=1;i<d.tapTimes.length;i++) intervals.push(d.tapTimes[i]-d.tapTimes[i-1]);
+    const avg = intervals.reduce((a,b)=>a+b,0)/intervals.length;
+    d.bpm = Math.round(60000/avg*10)/10;
+    document.getElementById(`bpm-${id}`).textContent = d.bpm.toFixed(1);
+  }
+}
+
+function shiftKey(id, delta){
+  const d = decks[id];
+  d.keyShift += delta;
+  document.getElementById(`kshift-${id}`).textContent = (d.keyShift>0?'+':'')+d.keyShift;
+  // Shift playback pitch by semitone (2^(1/12))
+  const semitoneRatio = Math.pow(2, delta/12);
+  d.pitchRate *= semitoneRatio;
+  if(d.source) d.source.playbackRate.value = d.pitchRate;
+  updateKeyDisplay(id);
+}
+
+// ═══════════════════════════════════════════════
+//  VOLUME & CROSSFADER
+// ═══════════════════════════════════════════════
+function setVol(id, val){
+  if(decks[id].gainNode) decks[id].gainNode.gain.value = parseFloat(val);
+}
+function setMasterVol(val){
+  if(masterGainNode) masterGainNode.gain.value = parseFloat(val);
+  document.getElementById('vol-master').value = val;
+  document.getElementById('master-vol2').value = val;
+}
+
+let xfadeCurve = 'linear';
+function setCurve(type, btn){
+  xfadeCurve = type;
+  document.querySelectorAll('.curve-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function updateCrossfader(val){
+  const x = parseFloat(val); // 0=full A, 1=full B
+  let gainA, gainB;
+  if(xfadeCurve==='scratch'){
+    gainA = x<0.5 ? 1 : Math.cos(x*Math.PI/2)*2;
+    gainB = x>0.5 ? 1 : Math.cos((1-x)*Math.PI/2)*2;
+  } else if(xfadeCurve==='smooth'){
+    gainA = Math.cos(x * Math.PI/2);
+    gainB = Math.cos((1-x) * Math.PI/2);
+  } else { // linear
+    gainA = 1-x; gainB = x;
+  }
+  // Apply to volume sliders visual
+  document.getElementById('vol-a').value = gainA * 1;
+  document.getElementById('vol-b').value = gainB * 1;
+  if(decks.a.gainNode) decks.a.gainNode.gain.value = gainA;
+  if(decks.b.gainNode) decks.b.gainNode.gain.value = gainB;
+}
+
+// ═══════════════════════════════════════════════
+//  EQ KNOBS
+// ═══════════════════════════════════════════════
+const knobState = {};
+function initKnobs(){
+  document.querySelectorAll('canvas.knob, canvas.fx-knob').forEach(c=>{
+    const id = c.id;
+    knobState[id] = {angle:0, mouseStart:0, valStart:0};
+    drawKnob(c, 0);
+    c.addEventListener('mousedown', knobMouseDown);
+    c.addEventListener('wheel', knobWheel, {passive:false});
+  });
+}
+
+function drawKnob(canvas, angle){
+  const ctx2 = canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height, cx=w/2, cy=h/2, r=w/2-3;
+  ctx2.clearRect(0,0,w,h);
+  const grad = ctx2.createRadialGradient(cx*0.7,cy*0.7,1,cx,cy,r);
+  grad.addColorStop(0,'#3a3a5c'); grad.addColorStop(1,'#1a1a28');
+  ctx2.beginPath(); ctx2.arc(cx,cy,r,0,Math.PI*2);
+  ctx2.fillStyle=grad; ctx2.fill();
+  ctx2.strokeStyle='#2d2d4a'; ctx2.lineWidth=2; ctx2.stroke();
+  // indicator
+  const a = angle * Math.PI * 1.5 - Math.PI*0.75;
+  const x1=cx+Math.cos(a)*(r-4), y1=cy+Math.sin(a)*(r-4);
+  const x2=cx+Math.cos(a)*(r-12), y2=cy+Math.sin(a)*(r-12);
+  ctx2.beginPath(); ctx2.moveTo(x2,y2); ctx2.lineTo(x1,y1);
+  ctx2.strokeStyle = canvas.classList.contains('fx-knob') ? '#60a5fa' : '#a78bfa';
+  ctx2.lineWidth=2.5; ctx2.lineCap='round'; ctx2.stroke();
+}
+
+function knobMouseDown(e){
+  const id = e.target.id;
+  knobState[id].mouseStart = e.clientY;
+  knobState[id].valStart = knobState[id].angle||0;
+  const mm = ev => { const dy=(knobState[id].mouseStart-ev.clientY)/100;
+    knobState[id].angle = Math.max(0,Math.min(1,knobState[id].valStart+dy));
+    drawKnob(e.target, knobState[id].angle); applyKnob(id); };
+  const mu = () => { removeEventListener('mousemove',mm); removeEventListener('mouseup',mu); };
+  addEventListener('mousemove',mm); addEventListener('mouseup',mu);
+  e.preventDefault();
+}
+function knobWheel(e){
+  const id = e.target.id;
+  if(!knobState[id]) knobState[id]={angle:0.5};
+  knobState[id].angle = Math.max(0,Math.min(1,(knobState[id].angle||0.5)+(e.deltaY<0?0.05:-0.05)));
+  drawKnob(e.target, knobState[id].angle); applyKnob(id); e.preventDefault();
+}
+
+function applyKnob(id){
+  const val = knobState[id].angle;
+  if(id.startsWith('eq-')){
+    const parts = id.split('-'); // eq-a-hi
+    const deck=parts[1], band=parts[2];
+    const db = (val-0.5)*24; // -12 to +12 dB
+    const node = band==='hi' ? decks[deck].eqHi : band==='mid' ? decks[deck].eqMid : decks[deck].eqLo;
+    if(node) node.gain.value = db;
+  } else if(id.startsWith('knob-reverb-wet')) {
+    fx.reverb.wet = val; if(fxBus.reverbGain) fxBus.reverbGain.gain.value = val * 0.8;
+  } else if(id.startsWith('knob-delay-time')) {
+    fx.delay.time = val*1.5; if(fxBus.delayNode) fxBus.delayNode.delayTime.value = val*1.5;
+  } else if(id.startsWith('knob-delay-fb')) {
+    fx.delay.fb = val*0.9; if(fxBus.delayFB) fxBus.delayFB.gain.value = val*0.9;
+  } else if(id.startsWith('knob-filter-freq')) {
+    const freq = 80 * Math.pow(200, val);
+    fx.filter.freq = freq; if(fxBus.filterNode) fxBus.filterNode.frequency.value = freq;
+  } else if(id.startsWith('knob-filter-q')) {
+    if(fxBus.filterNode) fxBus.filterNode.Q.value = val*15+0.1;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  EFFECTS
+// ═══════════════════════════════════════════════
+function setFXDeck(id){
+  mixer.fxDeck = id;
+  document.getElementById('fxdeck-a').style.background = id==='a'?'var(--deck-a)':'var(--bg4)';
+  document.getElementById('fxdeck-a').style.color = id==='a'?'#fff':'var(--text2)';
+  document.getElementById('fxdeck-a').style.border = id==='a'?'none':'1px solid var(--border)';
+  document.getElementById('fxdeck-b').style.background = id==='b'?'var(--deck-b)':'var(--bg4)';
+  document.getElementById('fxdeck-b').style.color = id==='b'?'#fff':'var(--text2)';
+  document.getElementById('fxdeck-b').style.border = id==='b'?'none':'1px solid var(--border)';
+}
+
+function toggleFX(name, btn){
+  fx[name].active = !fx[name].active;
+  btn.classList.toggle('active', fx[name].active);
+  if(name==='reverb') { if(fxBus.reverbGain) fxBus.reverbGain.gain.value = fx.reverb.active ? fx.reverb.wet*0.8 : 0; }
+  if(name==='delay')  { if(fxBus.delayGain)  fxBus.delayGain.gain.value  = fx.delay.active  ? 0.7 : 0; }
+  if(name==='filter') { if(fxBus.filterGain) fxBus.filterGain.gain.value  = fx.filter.active  ? 0.8 : 0; }
+}
+
+// ═══════════════════════════════════════════════
+//  STEMS (UI only — actual stem separation via Fadr)
+// ═══════════════════════════════════════════════
+const stemVols = {vocals:1, drums:1, bass:1, melody:1};
+function toggleStem(name, el){ el.classList.toggle('active'); toast(`${name} ${el.classList.contains('active')?'ON':'OFF'}`); }
+function setStemVol(name, val){ stemVols[name] = parseFloat(val); }
+function requestStemSeparation(){
+  toast('Opening Fadr for stem separation...');
+  setTimeout(()=>{ window.open('https://fadr.com/create','_blank'); },500);
+}
+
+// ═══════════════════════════════════════════════
+//  BPM DETECTION
+// ═══════════════════════════════════════════════
+function detectBPM(id){
+  const d = decks[id];
+  if(!d.buffer) return;
+  const data = d.buffer.getChannelData(0);
+  const sr = d.buffer.sampleRate;
+  const hopSize = 512, winSize = 1024;
+  const energies = [];
+  for(let i=0;i+winSize<data.length;i+=hopSize){
+    let e=0; for(let j=0;j<winSize;j++) e+=data[i+j]*data[i+j];
+    energies.push(e/winSize);
+  }
+  // Onset detection
+  const onsets = [];
+  for(let i=1;i<energies.length-1;i++){
+    const diff = energies[i] - energies[i-1];
+    if(diff > 0.002 && energies[i] > energies[i-1]*1.5) onsets.push(i);
+  }
+  if(onsets.length < 2){ d.bpm=120; document.getElementById(`bpm-${id}`).textContent='~120'; return; }
+  const intervals = [];
+  for(let i=1;i<Math.min(onsets.length,30);i++) intervals.push(onsets[i]-onsets[i-1]);
+  intervals.sort((a,b)=>a-b);
+  const med = intervals[Math.floor(intervals.length/2)];
+  const bpm = (sr/hopSize*60)/med;
+  // Clamp to musical range
+  let finalBpm = bpm;
+  while(finalBpm < 70) finalBpm *= 2;
+  while(finalBpm > 200) finalBpm /= 2;
+  d.bpm = Math.round(finalBpm*10)/10;
+  document.getElementById(`bpm-${id}`).textContent = d.bpm.toFixed(1);
+}
+
+// ═══════════════════════════════════════════════
+//  KEY DETECTION (via pitch class profile)
+// ═══════════════════════════════════════════════
+const KEYS = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const CAMELOT = {
+  'C major':'8B','Db major':'3B','D major':'10B','Eb major':'5B','E major':'12B','F major':'7B',
+  'F# major':'2B','G major':'9B','Ab major':'4B','A major':'11B','Bb major':'6B','B major':'1B',
+  'A minor':'8A','Bb minor':'3A','B minor':'10A','C minor':'5A','C# minor':'12A','D minor':'7A',
+  'Eb minor':'2A','E minor':'9A','F minor':'4A','F# minor':'11A','G minor':'6A','G# minor':'1A'
+};
+const MAJOR_PROFILE=[6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
+const MINOR_PROFILE=[6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+
+function detectKey(id){
+  const d = decks[id];
+  if(!d.buffer) return;
+  const c = getCtx();
+  const analyserNode = c.createAnalyser();
+  analyserNode.fftSize = 32768;
+  const src = c.createBufferSource();
+  src.buffer = d.buffer;
+  src.connect(analyserNode);
+  src.start(0);
+  setTimeout(()=>{
+    const freqData = new Float32Array(analyserNode.frequencyBinCount);
+    analyserNode.getFloatFrequencyData(freqData);
+    src.stop();
+    const chroma = new Array(12).fill(0);
+    const nyq = c.sampleRate/2;
+    for(let i=0;i<freqData.length;i++){
+      const freq = (i/freqData.length)*nyq;
+      if(freq<20||freq>5000) continue;
+      const mag = Math.pow(10,(freqData[i]-(-60))/20);
+      const noteNum = 12*Math.log2(freq/16.35);
+      const pc = ((Math.round(noteNum)%12)+12)%12;
+      chroma[pc] += mag;
+    }
+    const sum = chroma.reduce((a,b)=>a+b,0)||1;
+    const norm = chroma.map(v=>v/sum);
+    let bestKey='C major', bestScore=-Infinity;
+    for(let k=0;k<12;k++){
+      let maj=0, min=0;
+      for(let i=0;i<12;i++){
+        maj += norm[(i+k)%12]*MAJOR_PROFILE[i];
+        min += norm[(i+k)%12]*MINOR_PROFILE[i];
+      }
+      if(maj>bestScore){ bestScore=maj; bestKey=`${KEYS[k]} major`; }
+      if(min>bestScore){ bestScore=min; bestKey=`${KEYS[k]} minor`; }
+    }
+    d.key = bestKey;
+    const cam = CAMELOT[bestKey]||'--';
+    document.getElementById(`key-${id}`).textContent = cam;
+    updateKeyDisplay(id);
+  }, 200);
+}
+
+function updateKeyDisplay(id){
+  const d = decks[id];
+  const cam = CAMELOT[d.key]||'--';
+  // Shift camelot number by keyShift
+  if(cam!=='--'){
+    const num = parseInt(cam); const letter = cam.slice(-1);
+    const shifted = ((num-1+d.keyShift%12+12)%12)+1;
+    document.getElementById(`key-${id}`).textContent = shifted+letter;
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  WAVEFORM DRAWING
+// ═══════════════════════════════════════════════
+function drawWaveform(id){
+  const d = decks[id];
+  if(!d.buffer) return;
+  const canvas = document.getElementById(`waveform-${id}`);
+  const ctx2 = canvas.getContext('2d');
+  const W = canvas.clientWidth||canvas.width, H = canvas.height;
+  canvas.width = W;
+  const data = d.buffer.getChannelData(0);
+  const step = Math.ceil(data.length/W);
+  d.wfData = new Float32Array(W);
+  ctx2.clearRect(0,0,W,H);
+
+  const isA = id==='a';
+  const grad = ctx2.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0, isA?'rgba(124,58,237,0.9)':'rgba(14,165,233,0.9)');
+  grad.addColorStop(0.5, isA?'rgba(124,58,237,0.6)':'rgba(14,165,233,0.6)');
+  grad.addColorStop(1, isA?'rgba(124,58,237,0.2)':'rgba(14,165,233,0.2)');
+
+  ctx2.fillStyle = grad;
+  for(let x=0;x<W;x++){
+    let max=0;
+    for(let j=0;j<step;j++){ const v=Math.abs(data[x*step+j]||0); if(v>max) max=v; }
+    d.wfData[x] = max;
+    const h = max*(H/2)*0.9;
+    ctx2.fillRect(x, H/2-h, 1, h*2);
+  }
+}
+
+function drawTimeline(id){
+  const d = decks[id];
+  if(!d.buffer) return;
+  const canvas = document.getElementById(`tl-${id}`);
+  const ctx2 = canvas.getContext('2d');
+  const W = canvas.clientWidth||canvas.width, H = canvas.height;
+  canvas.width = W;
+  const isA = id==='a';
+  const data = d.buffer.getChannelData(0);
+  const step = Math.ceil(data.length/W);
+  ctx2.clearRect(0,0,W,H);
+  const col = isA?'rgba(124,58,237,0.8)':'rgba(14,165,233,0.8)';
+  ctx2.fillStyle = col;
+  for(let x=0;x<W;x++){
+    let max=0;
+    for(let j=0;j<step;j++){ const v=Math.abs(data[x*step+j]||0); if(v>max) max=v; }
+    const h = max*(H/2)*0.85;
+    ctx2.fillRect(x, H/2-h, 1, h*2);
+  }
+  // BPM grid
+  if(d.bpm>0){
+    const beatSec = 60/d.bpm, dur = d.buffer.duration;
+    ctx2.strokeStyle = 'rgba(255,255,255,0.15)';
+    ctx2.lineWidth = 1;
+    for(let t=0;t<dur;t+=beatSec){
+      const x = (t/dur)*W;
+      ctx2.beginPath(); ctx2.moveTo(x,0); ctx2.lineTo(x,H); ctx2.stroke();
+    }
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  VINYL TURNTABLE ANIMATION
+// ═══════════════════════════════════════════════
+function drawVinyl(id, angle){
+  const canvas = document.getElementById(`vinyl-${id}`);
+  const c2 = canvas.getContext('2d');
+  const w=canvas.width, h=canvas.height, cx=w/2, cy=h/2, r=w/2-2;
+  c2.clearRect(0,0,w,h);
+  c2.save(); c2.translate(cx,cy); c2.rotate(angle);
+
+  // Outer ring
+  const bg = c2.createRadialGradient(0,0,r*0.3,0,0,r);
+  bg.addColorStop(0,'#1a1a28'); bg.addColorStop(1,'#0a0a14');
+  c2.beginPath(); c2.arc(0,0,r,0,Math.PI*2);
+  c2.fillStyle=bg; c2.fill();
+
+  // Grooves
+  const isA = id==='a';
+  for(let i=0;i<20;i++){
+    const gr = (r*0.35)+(i*(r*0.55/20));
+    c2.beginPath(); c2.arc(0,0,gr,0,Math.PI*2);
+    c2.strokeStyle=`rgba(${isA?'120,60,200':'30,140,220'},${0.2+i*0.01})`;
+    c2.lineWidth=1; c2.stroke();
+  }
+
+  // Label
+  c2.beginPath(); c2.arc(0,0,r*0.28,0,Math.PI*2);
+  const lbl = c2.createRadialGradient(-5,-5,2,0,0,r*0.28);
+  lbl.addColorStop(0, isA?'#7c3aed':'#0ea5e9');
+  lbl.addColorStop(1, isA?'#4c1d95':'#0369a1');
+  c2.fillStyle=lbl; c2.fill();
+
+  // Center hole
+  c2.beginPath(); c2.arc(0,0,4,0,Math.PI*2);
+  c2.fillStyle='#0a0a14'; c2.fill();
+
+  // Sheen
+  c2.beginPath(); c2.arc(0,0,r,0,Math.PI*2);
+  const sheen = c2.createLinearGradient(-r,-r,r,r);
+  sheen.addColorStop(0,'rgba(255,255,255,0.05)');
+  sheen.addColorStop(0.5,'rgba(255,255,255,0)');
+  sheen.addColorStop(1,'rgba(0,0,0,0.2)');
+  c2.fillStyle=sheen; c2.fill();
+
+  c2.restore();
+}
+
+// ═══════════════════════════════════════════════
+//  MAIN ANIMATION LOOP
+// ═══════════════════════════════════════════════
+function animLoop(){
+  ['a','b'].forEach(id => {
+    const d = decks[id];
+    if(d.isPlaying){
+      const speed = d.pitchRate * 0.04;
+      d.vinylAngle = (d.vinylAngle||0) + speed;
+    }
+    drawVinyl(id, d.vinylAngle||0);
+
+    // Update waveform position
+    if(d.buffer){
+      const ct = getCurrentTime(id);
+      const ratio = Math.min(1, ct / d.buffer.duration);
+      document.getElementById(`wf-pos-${id}`).style.left = (ratio*100)+'%';
+      document.getElementById(`tlph-${id}`).style.left = (ratio*100)+'%';
+      document.getElementById(`time-${id}`).textContent = formatTime(ct);
+    }
+  });
+
+  // VU meters
+  updateVU('a'); updateVU('b');
+  requestAnimationFrame(animLoop);
+}
+
+function updateVU(id){
+  const d = decks[id];
+  const vuEl = document.getElementById(`vu-${id}`);
+  if(!d.analyser||!d.isPlaying){
+    vuEl.querySelectorAll('.vu-bar').forEach(b=>{ b.className='vu-bar'; });
+    return;
+  }
+  const data = new Uint8Array(d.analyser.frequencyBinCount);
+  d.analyser.getByteFrequencyData(data);
+  const rms = data.slice(0,50).reduce((a,b)=>a+b,0)/50/255;
+  const bars = vuEl.querySelectorAll('.vu-bar');
+  const level = Math.round(rms*bars.length);
+  bars.forEach((b,i)=>{
+    if(i<level){
+      if(i < bars.length*0.6) b.className='vu-bar on-low';
+      else if(i < bars.length*0.85) b.className='vu-bar on-mid';
+      else b.className='vu-bar on-high';
+    } else b.className='vu-bar';
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  INIT VU BARS
+// ═══════════════════════════════════════════════
+function initVU(){
+  ['a','m','b'].forEach(id=>{
+    const el = document.getElementById(`vu-${id}`);
+    const label = el.querySelector('.vu-label');
+    for(let i=0;i<12;i++){
+      const bar = document.createElement('div');
+      bar.className = 'vu-bar';
+      el.insertBefore(bar, label);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  RECORD & DOWNLOAD MIX
+// ═══════════════════════════════════════════════
+function toggleRecord(){
+  initAudio();
+  const btn = document.getElementById('rec-btn');
+  if(!isRecording){
+    const dest = getCtx().createMediaStreamDestination();
+    masterGainNode.connect(dest);
+    mediaRecorder = new MediaRecorder(dest.stream, {mimeType:'audio/webm;codecs=opus'});
+    recordedChunks = [];
+    mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
+    mediaRecorder.start(100);
+    isRecording = true;
+    btn.textContent = '⏹ STOP REC';
+    btn.classList.add('recording');
+    toast('🔴 Recording started');
+  } else {
+    mediaRecorder.stop();
+    isRecording = false;
+    btn.textContent = '● REC';
+    btn.classList.remove('recording');
+    toast('✅ Recording stopped — click Download Mix');
+  }
+}
+
+function downloadMix(){
+  if(recordedChunks.length===0){ toast('Record something first!'); return; }
+  const blob = new Blob(recordedChunks, {type:'audio/webm'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = 'ProMix_'+Date.now()+'.webm';
+  a.click(); URL.revokeObjectURL(url);
+  toast('⬇ Mix downloaded!');
+}
+
+// ═══════════════════════════════════════════════
+//  AUTO MIX
+// ═══════════════════════════════════════════════
+function autoMix(){
+  const da = decks.a, db = decks.b;
+  if(!da.buffer||!db.buffer){ toast('Load tracks on both decks first!'); return; }
+  toast('⚡ Auto Mix: syncing BPM and harmonic key...');
+  // Sync deck B to deck A's BPM
+  if(da.bpm&&db.bpm){
+    const ratio = da.bpm / db.bpm;
+    const pitchPct = (ratio-1)*100;
+    document.getElementById('pitch-b').value = pitchPct;
+    setPitch('b', pitchPct);
+  }
+  // Start transition: fade out A, fade in B over 8 beats
+  if(!da.isPlaying) playDeck('a');
+  setTimeout(()=>{
+    if(!db.isPlaying) playDeck('b');
+    // Animate crossfader
+    let x = 0;
+    const interval = setInterval(()=>{
+      x += 0.02;
+      document.getElementById('crossfader').value = x;
+      updateCrossfader(x);
+      if(x >= 1){ clearInterval(interval); toast('✅ Auto mix complete!'); }
+    }, 80); // ~4 seconds
+  }, 2000);
+}
+
+// ═══════════════════════════════════════════════
+//  YOUTUBE SEARCH
+// ═══════════════════════════════════════════════
+async function searchYouTube(){
+  const query = document.getElementById('search-input').value.trim();
+  if(!query) return;
+  const apiKey = document.getElementById('api-key-input').value.trim();
+  const statusEl = document.getElementById('search-status');
+  const panel = document.getElementById('results-panel');
+
+  if(!apiKey){
+    // Fallback: open YouTube search in new tab and show instructions
+    statusEl.textContent = '(Add API key above for in-app search)';
+    panel.style.display = 'block';
+    panel.innerHTML = `<div style="padding:12px 16px;font-size:.85rem;color:var(--text2)">
+      <b style="color:var(--neon)">No API key entered.</b>
+      <a href="https://www.youtube.com/results?search_query=${encodeURIComponent(query)}" target="_blank"
+         style="color:var(--neon2)">🔗 Search "${query}" on YouTube</a>
+      <br><br>
+      To enable in-app search: get a free YouTube Data API v3 key from
+      <a href="https://console.cloud.google.com/" target="_blank" style="color:var(--neon2)">Google Cloud Console</a>
+      and paste it in the API Key field above.
+      <br><br>
+      <b>To download MP3:</b> Copy a YouTube URL and use
+      <a href="https://cobalt.tools/" target="_blank" style="color:var(--neon3)">cobalt.tools</a>
+      (free, no login required).
+    </div>`;
+    return;
+  }
+
+  statusEl.textContent = 'Searching...';
+  panel.style.display = 'block';
+  panel.innerHTML = '<div style="padding:12px 16px;color:var(--text2)">Searching YouTube...</div>';
+
+  try {
+    const url = `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(query)}&type=video&videoCategoryId=10&maxResults=10&key=${apiKey}`;
+    const res = await fetch(url);
+    const data = await res.json();
+
+    if(data.error){ throw new Error(data.error.message); }
+
+    statusEl.textContent = `${data.items?.length||0} results`;
+    if(!data.items?.length){ panel.innerHTML='<div style="padding:12px 16px;color:var(--text2)">No results found.</div>'; return; }
+
+    panel.innerHTML = data.items.map(item => {
+      const vid = item.id.videoId;
+      const title = item.snippet.title;
+      const channel = item.snippet.channelTitle;
+      const thumb = item.snippet.thumbnails?.default?.url||'';
+      const ytUrl = `https://www.youtube.com/watch?v=${vid}`;
+      return `<div class="result-item">
+        <img class="result-thumb" src="${thumb}" alt="">
+        <div class="result-info">
+          <div class="result-title">${escHtml(title)}</div>
+          <div class="result-channel">${escHtml(channel)}</div>
+        </div>
+        <div class="result-actions">
+          <button class="load-deck-btn load-a" onclick="loadFromYT('${vid}','${escAtt(title)}','a')">→ A</button>
+          <button class="load-deck-btn load-b" onclick="loadFromYT('${vid}','${escAtt(title)}','b')">→ B</button>
+          <button class="dl-yt-btn" onclick="downloadYT('${vid}')">⬇ MP3</button>
+          <a href="${ytUrl}" target="_blank" style="padding:4px 8px;background:var(--red);color:#fff;border-radius:4px;font-size:.7rem;font-weight:700;text-decoration:none">▶ YT</a>
+        </div>
+      </div>`;
+    }).join('');
+  } catch(e){
+    statusEl.textContent = 'Error';
+    panel.innerHTML = `<div style="padding:12px 16px;color:var(--red)">Error: ${escHtml(e.message)}</div>`;
+  }
+}
+
+function loadFromYT(videoId, title, deck){
+  // Load via YouTube embed audio extraction (using cobalt.tools API)
+  toast(`Loading "${title}" to Deck ${deck.toUpperCase()} via YouTube...`);
+  downloadYTtoDeck(videoId, title, deck);
+}
+
+async function downloadYTtoDeck(videoId, title, deckId){
+  try {
+    const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    // Use cobalt.tools API to get audio stream
+    const res = await fetch('https://api.cobalt.tools/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({url: ytUrl, downloadMode:'audio', audioFormat:'mp3', audioBitrate:'320'})
+    });
+    const data = await res.json();
+    if(data.url||data.audio){
+      const audioUrl = data.url||data.audio;
+      toast(`Fetching audio for Deck ${deckId.toUpperCase()}...`);
+      const audioRes = await fetch(audioUrl);
+      const arrayBuf = await audioRes.arrayBuffer();
+      initAudio();
+      const audioBuf = await getCtx().decodeAudioData(arrayBuf);
+      const d = decks[deckId];
+      if(d.source){ try{d.source.stop()}catch(e){} }
+      d.buffer = audioBuf; d.isPlaying=false; d.startOffset=0; d.cuePoint=0;
+      document.getElementById(`title-${deckId}`).textContent = title;
+      detectBPM(deckId); detectKey(deckId); drawWaveform(deckId); drawTimeline(deckId);
+      toast(`✅ Loaded "${title}" to Deck ${deckId.toUpperCase()}`);
+    } else { throw new Error(data.error||'No audio URL returned'); }
+  } catch(e){
+    toast(`⚠ Could not auto-load. Use Download MP3 instead.`);
+  }
+}
+
+async function downloadYT(videoId){
+  const ytUrl = `https://www.youtube.com/watch?v=${videoId}`;
+  toast('Requesting MP3 download...');
+  try {
+    const res = await fetch('https://api.cobalt.tools/', {
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body: JSON.stringify({url: ytUrl, downloadMode:'audio', audioFormat:'mp3', audioBitrate:'320'})
+    });
+    const data = await res.json();
+    if(data.url){
+      const a = document.createElement('a');
+      a.href = data.url; a.download = videoId+'.mp3'; a.target = '_blank';
+      a.click();
+      toast('⬇ MP3 download started!');
+    } else if(data.status==='tunnel'||data.tunnel) {
+      window.open(data.url||data.tunnel, '_blank');
+      toast('⬇ Opening download...');
+    } else {
+      // Fallback to cobalt.tools website
+      window.open(`https://cobalt.tools/?u=${encodeURIComponent(ytUrl)}`, '_blank');
+      toast('⬇ Opening cobalt.tools for MP3 download...');
+    }
+  } catch(e){
+    window.open(`https://cobalt.tools/?u=${encodeURIComponent(`https://www.youtube.com/watch?v=${videoId}`)}`, '_blank');
+    toast('Opening cobalt.tools for download...');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  CAMELOT WHEEL
+// ═══════════════════════════════════════════════
+const CAMELOT_DATA = [
+  {num:1,  A:{key:'Ab min',full:'G# minor'}, B:{key:'B maj',full:'B major'}},
+  {num:2,  A:{key:'Eb min',full:'D# minor'}, B:{key:'F# maj',full:'F# major'}},
+  {num:3,  A:{key:'Bb min',full:'A# minor'}, B:{key:'Db maj',full:'Db major'}},
+  {num:4,  A:{key:'F min', full:'F minor'},  B:{key:'Ab maj',full:'Ab major'}},
+  {num:5,  A:{key:'C min', full:'C minor'},  B:{key:'Eb maj',full:'Eb major'}},
+  {num:6,  A:{key:'G min', full:'G minor'},  B:{key:'Bb maj',full:'Bb major'}},
+  {num:7,  A:{key:'D min', full:'D minor'},  B:{key:'F maj', full:'F major'}},
+  {num:8,  A:{key:'A min', full:'A minor'},  B:{key:'C maj', full:'C major'}},
+  {num:9,  A:{key:'E min', full:'E minor'},  B:{key:'G maj', full:'G major'}},
+  {num:10, A:{key:'B min', full:'B minor'},  B:{key:'D maj', full:'D major'}},
+  {num:11, A:{key:'F# min',full:'F# minor'}, B:{key:'A maj', full:'A major'}},
+  {num:12, A:{key:'C# min',full:'C# minor'}, B:{key:'E maj', full:'E major'}},
+];
+
+function drawCamelotWheel(){
+  const svg = document.getElementById('camelot-svg');
+  const cx=230, cy=230, outerR=210, innerR=130, labelR=170, innerLabelR=100;
+  let html = '';
+  CAMELOT_DATA.forEach((d,i)=>{
+    const total = 12, slice = (Math.PI*2)/total;
+    const startAngle = (i-0.5)*slice - Math.PI/2;
+    const endAngle = (i+0.5)*slice - Math.PI/2;
+    const midAngle = i*slice - Math.PI/2;
+    const outerArc = arcPath(cx,cy,outerR,startAngle,endAngle);
+    const innerArc = arcPath(cx,cy,innerR,startAngle,endAngle);
+    // Outer segment (B = major)
+    const bColor = `hsl(${i*30},70%,35%)`;
+    const bLx = cx+Math.cos(midAngle)*labelR, bLy = cy+Math.sin(midAngle)*labelR;
+    html += `<path d="${outerSegment(cx,cy,innerR,outerR,startAngle,endAngle)}" fill="${bColor}" stroke="#0a0a14" stroke-width="1.5"/>`;
+    html += `<text x="${bLx}" y="${bLy}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="11" font-weight="bold">${d.num}B</text>`;
+    html += `<text x="${bLx}" y="${bLy+13}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,0.7)" font-size="8">${d.B.key}</text>`;
+    // Inner segment (A = minor)
+    const aColor = `hsl(${i*30},50%,22%)`;
+    const aLx = cx+Math.cos(midAngle)*innerLabelR, aLy = cy+Math.sin(midAngle)*innerLabelR;
+    html += `<path d="${outerSegment(cx,cy,40,innerR,startAngle,endAngle)}" fill="${aColor}" stroke="#0a0a14" stroke-width="1.5"/>`;
+    html += `<text x="${aLx}" y="${aLy}" text-anchor="middle" dominant-baseline="middle" fill="white" font-size="11" font-weight="bold">${d.num}A</text>`;
+    html += `<text x="${aLx}" y="${aLy+13}" text-anchor="middle" dominant-baseline="middle" fill="rgba(255,255,255,0.7)" font-size="8">${d.A.key}</text>`;
+  });
+  // Center
+  html += `<circle cx="${cx}" cy="${cy}" r="38" fill="#1a1a28" stroke="#2d2d4a" stroke-width="2"/>`;
+  html += `<text x="${cx}" y="${cy-6}" text-anchor="middle" fill="#a78bfa" font-size="11" font-weight="bold">CAMELOT</text>`;
+  html += `<text x="${cx}" y="${cy+8}" text-anchor="middle" fill="#94a3b8" font-size="9">WHEEL</text>`;
+  svg.innerHTML = html;
+}
+
+function outerSegment(cx,cy,r1,r2,a1,a2){
+  const p1=polar(cx,cy,r2,a1), p2=polar(cx,cy,r2,a2);
+  const p3=polar(cx,cy,r1,a2), p4=polar(cx,cy,r1,a1);
+  const la = a2-a1 > Math.PI ? 1 : 0;
+  return `M${p1.x},${p1.y} A${r2},${r2} 0 ${la},1 ${p2.x},${p2.y} L${p3.x},${p3.y} A${r1},${r1} 0 ${la},0 ${p4.x},${p4.y} Z`;
+}
+function polar(cx,cy,r,a){ return {x:cx+Math.cos(a)*r, y:cy+Math.sin(a)*r}; }
+function arcPath(cx,cy,r,a1,a2){ const p1=polar(cx,cy,r,a1),p2=polar(cx,cy,r,a2); return `M${p1.x},${p1.y} A${r},${r} 0 0,1 ${p2.x},${p2.y}`; }
+
+function showCamelot(){ document.getElementById('camelot-modal').classList.add('show'); }
+function hideCamelot(){ document.getElementById('camelot-modal').classList.remove('show'); }
+
+// ═══════════════════════════════════════════════
+//  UTILS
+// ═══════════════════════════════════════════════
+function formatTime(sec){
+  const m=Math.floor(sec/60), s=Math.floor(sec%60);
+  return `${m}:${s.toString().padStart(2,'0')}`;
+}
+function escHtml(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+function escAtt(s){ return s.replace(/'/g,"&#39;").replace(/"/g,'&quot;'); }
+function toast(msg){
+  const el = document.getElementById('toast');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 3000);
+}
+
+// ═══════════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════════
+window.addEventListener('load', ()=>{
+  initVU();
+  initKnobs();
+  drawVinyl('a',0); drawVinyl('b',0);
+  drawCamelotWheel();
+  animLoop();
+  // Set initial knob positions to center (0.5)
+  document.querySelectorAll('canvas.knob').forEach(c=>{ knobState[c.id]={angle:0.5}; drawKnob(c,0.5); });
+  document.querySelectorAll('canvas.fx-knob').forEach(c=>{ knobState[c.id]={angle:0.5}; drawKnob(c,0.5); });
+  // Resize waveforms on resize
+  window.addEventListener('resize', ()=>{
+    ['a','b'].forEach(id=>{ if(decks[id].buffer){ drawWaveform(id); drawTimeline(id); } });
+  });
+  toast('🎵 ProMix DJ Studio ready! Load tracks or search YouTube.');
+});
+
+// Close camelot on backdrop click
+document.getElementById('camelot-modal').addEventListener('click', e=>{
+  if(e.target===document.getElementById('camelot-modal')) hideCamelot();
+});
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e=>{
+  if(e.target.tagName==='INPUT') return;
+  switch(e.key){
+    case ' ': e.preventDefault(); togglePlay('a'); break;
+    case 'Enter': togglePlay('b'); break;
+    case 'ArrowLeft': if(decks.a.buffer){ decks.a.startOffset=Math.max(0,getCurrentTime('a')-5); if(decks.a.isPlaying){pauseDeck('a');playDeck('a');} } break;
+    case 'ArrowRight': if(decks.a.buffer){ decks.a.startOffset=Math.min(decks.a.buffer.duration,getCurrentTime('a')+5); if(decks.a.isPlaying){pauseDeck('a');playDeck('a');} } break;
+    case 'q': setCue('a'); break;
+    case 'w': setCue('b'); break;
+    case 's': syncDeck('b'); break;
+    case 'a': toggleRecord(); break;
+  }
+});
+</script>
+</body>
+</html>
