@@ -45,7 +45,65 @@ body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,san
 #dl-mix-btn{background:var(--neon3);color:#000}
 #camelot-btn{background:var(--bg4);color:var(--neon);border:1px solid var(--accent)}
 #automix-btn{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff}
+.spotify-btn{background:#1db954;color:#fff}
+.spotisaver-btn{background:#ff6b35;color:#fff}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+
+/* ── BULK QUEUE SECTION ── */
+#bulk-section{background:var(--bg2);border-bottom:1px solid var(--border);padding:12px 16px}
+#bulk-header{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+#bulk-title{font-size:.75rem;font-weight:800;letter-spacing:2px;color:var(--neon)}
+#bulk-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.bulk-btn{padding:6px 14px;border-radius:6px;border:none;cursor:pointer;font-size:.78rem;font-weight:700;transition:.2s}
+#auto-dj-btn{background:linear-gradient(135deg,#f59e0b,#ef4444);color:#fff;font-size:.85rem;padding:8px 18px;box-shadow:0 0 16px rgba(245,158,11,.4)}
+#auto-dj-btn:disabled{opacity:.5;cursor:not-allowed;box-shadow:none}
+#sort-queue-btn{background:var(--accent);color:#fff}
+#clear-queue-btn{background:var(--bg4);color:var(--text2);border:1px solid var(--border)}
+#export-mix-btn{background:var(--neon3);color:#000}
+#bulk-progress-wrap{display:none;flex:1;min-width:200px}
+#bulk-progress-bar{width:100%;height:8px;background:var(--bg4);border-radius:4px;overflow:hidden;margin-bottom:3px}
+#bulk-progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--neon3));border-radius:4px;width:0%;transition:.3s}
+#bulk-progress-label{font-size:.7rem;color:var(--text2)}
+
+/* DROP ZONE */
+#drop-zone{border:2px dashed var(--border);border-radius:10px;padding:20px;text-align:center;cursor:pointer;transition:.2s;position:relative;background:var(--bg)}
+#drop-zone.drag-over{border-color:var(--neon);background:rgba(167,139,250,.08);box-shadow:0 0 20px rgba(167,139,250,.2)}
+#drop-zone-label{font-size:.9rem;color:var(--text2)}
+#drop-zone-sub{font-size:.75rem;color:var(--text3);margin-top:4px}
+#drop-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%}
+
+/* QUEUE LIST */
+#queue-list{max-height:220px;overflow-y:auto;margin-top:10px;display:flex;flex-direction:column;gap:4px}
+.queue-item{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:7px;cursor:grab;transition:.15s;user-select:none}
+.queue-item:hover{border-color:var(--accent);background:var(--bg4)}
+.queue-item.playing-now{border-color:var(--neon3);background:rgba(52,211,153,.08)}
+.queue-item.done{opacity:.45}
+.queue-item.dragging{opacity:.4;border-style:dashed}
+.qi-num{font-size:.7rem;color:var(--text3);min-width:18px;text-align:center}
+.qi-title{flex:1;font-size:.82rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.qi-bpm{font-size:.7rem;color:var(--yellow);min-width:52px}
+.qi-key{font-size:.7rem;color:var(--neon);min-width:30px}
+.qi-compat{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-left:2px}
+.qi-compat.green{background:var(--neon3)}
+.qi-compat.yellow{background:var(--yellow)}
+.qi-compat.red{background:var(--red)}
+.qi-rm{background:none;border:none;color:var(--text3);cursor:pointer;font-size:.85rem;padding:0 2px;line-height:1}
+.qi-rm:hover{color:var(--red)}
+.qi-load-a{padding:2px 6px;background:var(--deck-a);color:#fff;border:none;border-radius:3px;font-size:.65rem;font-weight:700;cursor:pointer}
+.qi-load-b{padding:2px 6px;background:var(--deck-b);color:#fff;border:none;border-radius:3px;font-size:.65rem;font-weight:700;cursor:pointer}
+#queue-stats{font-size:.72rem;color:var(--text3);margin-top:6px;padding:4px 0}
+
+/* AUTO DJ OVERLAY */
+#auto-dj-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:300;align-items:center;justify-content:center}
+#auto-dj-overlay.show{display:flex}
+#auto-dj-box{background:var(--bg2);border:1px solid var(--border);border-radius:16px;padding:32px;max-width:480px;width:90%;text-align:center}
+#auto-dj-box h2{font-size:1.4rem;font-weight:900;color:var(--neon);margin-bottom:8px}
+#auto-dj-status{font-size:.9rem;color:var(--text2);margin:12px 0}
+#auto-dj-big-bar{width:100%;height:12px;background:var(--bg4);border-radius:6px;overflow:hidden;margin:12px 0}
+#auto-dj-big-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--neon3));border-radius:6px;width:0%;transition:.4s}
+#auto-dj-track-info{font-size:.82rem;color:var(--text3);margin:8px 0 16px}
+#auto-dj-cancel{padding:8px 20px;background:var(--red);color:#fff;border:none;border-radius:8px;cursor:pointer;font-weight:700}
+#auto-dj-done-btn{display:none;padding:8px 20px;background:var(--neon3);color:#000;border:none;border-radius:8px;cursor:pointer;font-weight:700;margin-left:8px}
 
 /* SEARCH */
 #search-section{padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap}
@@ -259,6 +317,8 @@ body{display:flex;flex-direction:column}
     <button class="hdr-btn" id="dl-mix-btn" onclick="downloadMix()">⬇ Download Mix</button>
     <button class="hdr-btn" id="camelot-btn" onclick="showCamelot()">⟳ Camelot Wheel</button>
     <button class="hdr-btn" id="automix-btn" onclick="autoMix()">⚡ Auto Mix</button>
+    <a class="hdr-btn spotify-btn" href="https://open.spotify.com/" target="_blank" style="text-decoration:none">🎵 Spotify</a>
+    <a class="hdr-btn spotisaver-btn" href="https://spotisaver.net/en/spotify-playlist-downloader" target="_blank" style="text-decoration:none">⬇ SpotiSaver</a>
   </div>
 </div>
 
@@ -269,6 +329,47 @@ body{display:flex;flex-direction:column}
   <span id="search-status"></span>
 </div>
 <div id="results-panel"></div>
+
+<!-- BULK QUEUE SECTION -->
+<div id="bulk-section">
+  <div id="bulk-header">
+    <span id="bulk-title">🎛 BULK QUEUE &amp; AUTO DJ</span>
+    <div id="bulk-actions">
+      <button class="bulk-btn" id="sort-queue-btn" onclick="smartSortQueue()">🧠 Smart Sort</button>
+      <button class="bulk-btn" id="auto-dj-btn" onclick="startAutoDJ()" disabled>🚀 AUTO DJ MIX</button>
+      <button class="bulk-btn" id="export-mix-btn" onclick="downloadMix()" style="display:none">⬇ Download Full Mix</button>
+      <button class="bulk-btn" id="clear-queue-btn" onclick="clearQueue()">✕ Clear</button>
+      <div id="bulk-progress-wrap">
+        <div id="bulk-progress-bar"><div id="bulk-progress-fill"></div></div>
+        <div id="bulk-progress-label">Analyzing tracks...</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="drop-zone"
+       ondragover="dzOver(event)" ondragleave="dzLeave(event)" ondrop="dzDrop(event)">
+    <div id="drop-zone-label">🎵 Drag &amp; Drop MP3 files here — or click to browse</div>
+    <div id="drop-zone-sub">Supports MP3 · WAV · FLAC · OGG · M4A · AAC — upload any number of files</div>
+    <input type="file" accept="audio/*" multiple onchange="queueFilePick(event)">
+  </div>
+
+  <div id="queue-list"></div>
+  <div id="queue-stats"></div>
+</div>
+
+<!-- AUTO DJ OVERLAY -->
+<div id="auto-dj-overlay">
+  <div id="auto-dj-box">
+    <h2>🚀 Auto DJ Mixing</h2>
+    <div id="auto-dj-status">Initializing...</div>
+    <div id="auto-dj-big-bar"><div id="auto-dj-big-fill"></div></div>
+    <div id="auto-dj-track-info">Preparing your tracks...</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-top:8px">
+      <button id="auto-dj-cancel" onclick="cancelAutoDJ()">✕ Cancel</button>
+      <button id="auto-dj-done-btn" onclick="finishAutoDJ()">⬇ Download Mix</button>
+    </div>
+  </div>
+</div>
 
 <!-- MAIN DECKS + MIXER -->
 <div id="main">
@@ -1585,6 +1686,434 @@ window.addEventListener('load', ()=>{
 document.getElementById('camelot-modal').addEventListener('click', e=>{
   if(e.target===document.getElementById('camelot-modal')) hideCamelot();
 });
+
+// ═══════════════════════════════════════════════
+//  BULK QUEUE & AUTO DJ ENGINE
+// ═══════════════════════════════════════════════
+
+const queue = [];   // [{file, name, buffer, bpm, key, camelot, duration, analyzed}]
+let autoDJActive = false, autoDJCancel = false;
+let autoDJRecorder = null, autoDJChunks = [];
+
+// ─── DROP ZONE ───────────────────────────────
+function dzOver(e){ e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
+function dzLeave(e){ document.getElementById('drop-zone').classList.remove('drag-over'); }
+function dzDrop(e){
+  e.preventDefault();
+  document.getElementById('drop-zone').classList.remove('drag-over');
+  const files = [...e.dataTransfer.files].filter(f => f.type.startsWith('audio/') || /\.(mp3|wav|flac|ogg|m4a|aac)$/i.test(f.name));
+  addFilesToQueue(files);
+}
+function queueFilePick(e){ addFilesToQueue([...e.target.files]); e.target.value=''; }
+
+async function addFilesToQueue(files){
+  if(!files.length) return;
+  initAudio();
+  const wrap = document.getElementById('bulk-progress-wrap');
+  wrap.style.display = 'flex';
+  setProgress(0, `Analyzing 0 / ${files.length} tracks...`);
+
+  for(let i=0;i<files.length;i++){
+    const f = files[i];
+    setProgress((i/files.length)*100, `Analyzing ${i+1} / ${files.length}: ${f.name.replace(/\.[^.]+$/,'')}`);
+    try {
+      const ab = await f.arrayBuffer();
+      const buf = await getCtx().decodeAudioData(ab);
+      const entry = { file:f, name:f.name.replace(/\.[^.]+$/,''), buffer:buf,
+                      bpm:0, key:'--', camelot:'--', duration:buf.duration, analyzed:false };
+      queue.push(entry);
+      analyzeQueueEntry(entry);
+      renderQueue();
+    } catch(e){ toast(`⚠ Could not decode: ${f.name}`); }
+  }
+
+  setProgress(100, `${files.length} track${files.length>1?'s':''} loaded`);
+  setTimeout(()=>{ wrap.style.display='none'; }, 2000);
+  renderQueue();
+  updateAutoDJBtn();
+}
+
+async function analyzeQueueEntry(entry){
+  // BPM
+  const data  = entry.buffer.getChannelData(0);
+  const sr    = entry.buffer.sampleRate;
+  const hop   = 512, win = 1024;
+  const energies = [];
+  for(let i=0;i+win<data.length;i+=hop){
+    let e=0; for(let j=0;j<win;j++) e+=data[i+j]*data[i+j];
+    energies.push(e/win);
+  }
+  const onsets=[];
+  for(let i=1;i<energies.length-1;i++){
+    if(energies[i]-energies[i-1]>0.002 && energies[i]>energies[i-1]*1.5) onsets.push(i);
+  }
+  let bpm=120;
+  if(onsets.length>=2){
+    const intervals=[];
+    for(let i=1;i<Math.min(onsets.length,30);i++) intervals.push(onsets[i]-onsets[i-1]);
+    intervals.sort((a,b)=>a-b);
+    const med=intervals[Math.floor(intervals.length/2)];
+    bpm=(sr/hop*60)/med;
+    while(bpm<70) bpm*=2; while(bpm>200) bpm/=2;
+  }
+  entry.bpm = Math.round(bpm*10)/10;
+
+  // Key (lightweight — sample the first 30 sec)
+  const c    = getCtx();
+  const an   = c.createAnalyser(); an.fftSize=32768;
+  const src2 = c.createBufferSource(); src2.buffer=entry.buffer;
+  src2.connect(an); src2.start(0);
+  await new Promise(r=>setTimeout(r,200));
+  const fD   = new Float32Array(an.frequencyBinCount);
+  an.getFloatFrequencyData(fD);
+  try{src2.stop()}catch(e){}
+  const chroma=new Array(12).fill(0);
+  const nyq=c.sampleRate/2;
+  for(let i=0;i<fD.length;i++){
+    const freq=(i/fD.length)*nyq;
+    if(freq<20||freq>5000) continue;
+    const mag=Math.pow(10,(fD[i]-(-60))/20);
+    const pc=((Math.round(12*Math.log2(freq/16.35))%12)+12)%12;
+    chroma[pc]+=mag;
+  }
+  const sum=chroma.reduce((a,b)=>a+b,0)||1;
+  const norm=chroma.map(v=>v/sum);
+  let best='C major', bestScore=-Infinity;
+  for(let k=0;k<12;k++){
+    let maj=0,min=0;
+    for(let i=0;i<12;i++){
+      maj+=norm[(i+k)%12]*MAJOR_PROFILE[i];
+      min+=norm[(i+k)%12]*MINOR_PROFILE[i];
+    }
+    if(maj>bestScore){bestScore=maj;best=`${KEYS[k]} major`;}
+    if(min>bestScore){bestScore=min;best=`${KEYS[k]} minor`;}
+  }
+  entry.key    = best;
+  entry.camelot= CAMELOT[best]||'--';
+  entry.analyzed=true;
+  renderQueue();
+  updateAutoDJBtn();
+}
+
+// ─── CAMELOT COMPATIBILITY SCORE (0–3) ───────
+function camelotScore(a, b){
+  if(a==='--'||b==='--') return 1;
+  const na=parseInt(a), nb=parseInt(b), la=a.slice(-1), lb=b.slice(-1);
+  if(isNaN(na)||isNaN(nb)) return 1;
+  if(na===nb && la===lb) return 3;   // identical
+  if(na===nb) return 3;              // same number, diff letter (relative)
+  const diff=Math.abs(na-nb); const wrap=12-diff;
+  const dist=Math.min(diff,wrap);
+  if(dist===1 && la===lb) return 3;  // adjacent
+  if(dist===1) return 2;             // adjacent cross
+  if(dist===2) return 1;             // two apart
+  return 0;
+}
+
+function bpmScore(a,b){
+  if(!a||!b) return 1;
+  const ratio=Math.max(a,b)/Math.min(a,b);
+  if(ratio<1.03) return 3;
+  if(ratio<1.07) return 2;
+  if(ratio<1.15) return 1;
+  return 0;
+}
+
+// ─── SMART SORT (greedy nearest-neighbor) ────
+function smartSortQueue(){
+  if(queue.length<2){toast('Add at least 2 tracks to sort');return;}
+  const unsorted=[...queue];
+  const sorted=[unsorted.shift()]; // start with first
+  while(unsorted.length){
+    const last=sorted[sorted.length-1];
+    let bestIdx=0, bestScore=-1;
+    for(let i=0;i<unsorted.length;i++){
+      const s=camelotScore(last.camelot,unsorted[i].camelot)*2 + bpmScore(last.bpm,unsorted[i].bpm);
+      if(s>bestScore){bestScore=s;bestIdx=i;}
+    }
+    sorted.push(unsorted.splice(bestIdx,1)[0]);
+  }
+  queue.length=0; sorted.forEach(e=>queue.push(e));
+  renderQueue();
+  toast('🧠 Queue sorted by best harmonic & BPM transitions!');
+}
+
+// ─── RENDER QUEUE ─────────────────────────────
+function renderQueue(){
+  const el=document.getElementById('queue-list');
+  if(!queue.length){ el.innerHTML=''; updateQueueStats(); return; }
+  el.innerHTML = queue.map((e,i)=>{
+    const prev = queue[i-1];
+    const compat = prev ? camelotScore(prev.camelot,e.camelot)+bpmScore(prev.bpm,e.bpm) : 6;
+    const dot = i===0 ? '' : `<span class="qi-compat ${compat>=5?'green':compat>=3?'yellow':'red'}" title="Transition score ${compat}/6"></span>`;
+    const bpmTxt = e.bpm ? `${e.bpm.toFixed(0)} BPM` : 'analyzing...';
+    const keyTxt = e.camelot !== '--' ? e.camelot : (e.analyzed ? '--' : '...');
+    return `<div class="queue-item" draggable="true"
+              ondragstart="qiDragStart(event,${i})" ondragover="qiDragOver(event,${i})"
+              ondrop="qiDrop(event,${i})" ondragend="qiDragEnd(event)"
+              id="qi-${i}">
+      <span class="qi-num">${i+1}</span>
+      ${dot}
+      <span class="qi-title" title="${escHtml(e.name)}">${escHtml(e.name)}</span>
+      <span class="qi-bpm">${bpmTxt}</span>
+      <span class="qi-key">${keyTxt}</span>
+      <span style="font-size:.7rem;color:var(--text3)">${formatTime(e.duration)}</span>
+      <button class="qi-load-a" onclick="loadQueueToDeck(${i},'a')">→A</button>
+      <button class="qi-load-b" onclick="loadQueueToDeck(${i},'b')">→B</button>
+      <button class="qi-rm" onclick="removeFromQueue(${i})" title="Remove">✕</button>
+    </div>`;
+  }).join('');
+  updateQueueStats();
+
+  // make drag-handle sortable
+  el.querySelectorAll('.queue-item').forEach(item=>{
+    item.addEventListener('dragstart', e=>{ e.dataTransfer.effectAllowed='move'; });
+  });
+}
+
+let dragSrcIdx = null;
+function qiDragStart(e,i){ dragSrcIdx=i; document.getElementById(`qi-${i}`).classList.add('dragging'); }
+function qiDragOver(e,i){ e.preventDefault(); e.dataTransfer.dropEffect='move'; }
+function qiDrop(e,i){
+  e.preventDefault();
+  if(dragSrcIdx===null||dragSrcIdx===i) return;
+  const item=queue.splice(dragSrcIdx,1)[0];
+  queue.splice(i,0,item);
+  dragSrcIdx=null; renderQueue();
+}
+function qiDragEnd(e){ dragSrcIdx=null; renderQueue(); }
+
+function updateQueueStats(){
+  const el=document.getElementById('queue-stats');
+  if(!queue.length){el.textContent='';return;}
+  const totalSec=queue.reduce((s,e)=>s+e.duration,0);
+  const done=queue.filter(e=>e.analyzed).length;
+  el.textContent=`${queue.length} tracks  ·  Total: ${formatTime(totalSec)}  ·  Analyzed: ${done}/${queue.length}`;
+}
+
+function updateAutoDJBtn(){
+  const ready = queue.length>=2 && queue.every(e=>e.analyzed);
+  document.getElementById('auto-dj-btn').disabled = !ready;
+  if(ready) toast(`✅ ${queue.length} tracks analyzed — ready to Auto DJ!`);
+}
+
+function clearQueue(){
+  queue.length=0; renderQueue();
+  document.getElementById('auto-dj-btn').disabled=true;
+  document.getElementById('export-mix-btn').style.display='none';
+}
+
+function removeFromQueue(i){ queue.splice(i,1); renderQueue(); updateAutoDJBtn(); }
+
+function loadQueueToDeck(i,id){
+  const entry=queue[i]; if(!entry) return;
+  initAudio();
+  const d=decks[id];
+  if(d.source){try{d.source.stop()}catch(e){}}
+  d.buffer=entry.buffer; d.isPlaying=false; d.startOffset=0; d.cuePoint=0;
+  d.bpm=entry.bpm; d.key=entry.key;
+  document.getElementById(`title-${id}`).textContent=entry.name;
+  document.getElementById(`bpm-${id}`).textContent=entry.bpm?entry.bpm.toFixed(1):'--';
+  document.getElementById(`key-${id}`).textContent=entry.camelot||'--';
+  document.getElementById(`play-${id}`).textContent='▶';
+  document.getElementById(`play-${id}`).classList.remove('playing');
+  drawWaveform(id); drawTimeline(id);
+  toast(`✅ "${entry.name}" loaded to Deck ${id.toUpperCase()}`);
+}
+
+function setProgress(pct,label){
+  document.getElementById('bulk-progress-fill').style.width=pct+'%';
+  document.getElementById('bulk-progress-label').textContent=label;
+}
+
+// ─── AUTO DJ ENGINE ───────────────────────────
+async function startAutoDJ(){
+  if(queue.length<2){toast('Add at least 2 tracks!');return;}
+  if(!queue.every(e=>e.analyzed)){toast('Still analyzing tracks, please wait...');return;}
+  initAudio();
+
+  autoDJActive=true; autoDJCancel=false;
+  autoDJChunks=[];
+  const overlay=document.getElementById('auto-dj-overlay');
+  overlay.classList.add('show');
+  setAutoDJStatus('Setting up mix engine...', 0, '');
+
+  // Start recording the master output
+  const dest=getCtx().createMediaStreamDestination();
+  masterGainNode.connect(dest);
+  autoDJRecorder=new MediaRecorder(dest.stream,{mimeType:'audio/webm;codecs=opus'});
+  autoDJRecorder.ondataavailable=e=>{if(e.data.size>0) autoDJChunks.push(e.data);};
+  autoDJRecorder.start(100);
+
+  const CROSSFADE_BEATS = 8;     // how many beats to crossfade
+  const TAIL_BEATS      = 4;     // how many beats before end to start crossfade-out
+  const LEAD_IN_BEATS   = 4;     // how many beats into track B to begin
+
+  for(let idx=0;idx<queue.length;idx++){
+    if(autoDJCancel) break;
+    const entry = queue[idx];
+    const next  = queue[idx+1];
+    const isLast= idx===queue.length-1;
+
+    // Mark as now playing
+    document.querySelectorAll('.queue-item').forEach(el=>el.classList.remove('playing-now'));
+    const qi=document.getElementById(`qi-${idx}`);
+    if(qi) qi.classList.add('playing-now');
+
+    setAutoDJStatus(
+      `Mixing track ${idx+1} of ${queue.length}`,
+      Math.round((idx/queue.length)*100),
+      `▶  ${entry.name}${next?' → '+next.name:''}`
+    );
+
+    // Load to deck A (or B alternating)
+    const deckId = idx%2===0?'a':'b';
+    const otherDeck = deckId==='a'?'b':'a';
+    loadQueueToDeck(idx, deckId);
+    await sleep(100);
+
+    // Sync BPM: pitch deckId to match otherDeck if we have a previous track
+    if(idx>0 && decks[otherDeck].bpm && entry.bpm){
+      const ratio=decks[otherDeck].bpm/entry.bpm;
+      const pct=(ratio-1)*100;
+      const clamped=Math.max(-8,Math.min(8,pct));
+      document.getElementById(`pitch-${deckId}`).value=clamped;
+      setPitch(deckId,clamped);
+    }
+
+    // EQ: pre-cut bass on incoming deck
+    if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value=-10;
+
+    // Set crossfader fully to outgoing deck
+    const xfStart = deckId==='a' ? 1 : 0;
+    const xfEnd   = deckId==='a' ? 0 : 1;
+    document.getElementById('crossfader').value=xfStart;
+    updateCrossfader(xfStart);
+
+    // Play incoming deck
+    playDeck(deckId);
+
+    if(idx===0){
+      // First track: just play, no crossfade needed yet
+      await sleep(300);
+    }
+
+    // Calculate crossfade start time
+    const beatDuration   = entry.bpm>0 ? 60/entry.bpm : 0.5;
+    const xfadeDuration  = Math.max(4, CROSSFADE_BEATS*beatDuration)*1000; // ms
+    const playDuration   = Math.max(8000, (entry.duration - (TAIL_BEATS+LEAD_IN_BEATS)*beatDuration)*1000);
+
+    if(!isLast){
+      setAutoDJStatus(
+        `Playing: ${entry.name}`,
+        Math.round(((idx+0.3)/queue.length)*100),
+        `Next: ${next.name}`
+      );
+
+      // Wait until near end of track
+      await sleep(playDuration);
+      if(autoDJCancel) break;
+
+      // Load next track to other deck
+      loadQueueToDeck(idx+1, otherDeck);
+      await sleep(100);
+      if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value=-10;
+
+      // Sync next track BPM to current
+      if(next.bpm && entry.bpm){
+        const ratio=entry.bpm/next.bpm;
+        const pct=(ratio-1)*100;
+        const clamped=Math.max(-8,Math.min(8,pct));
+        document.getElementById(`pitch-${otherDeck}`).value=clamped;
+        setPitch(otherDeck,clamped);
+      }
+
+      // Start next deck
+      playDeck(otherDeck);
+      setAutoDJStatus(
+        `Crossfading: ${entry.name} → ${next.name}`,
+        Math.round(((idx+0.6)/queue.length)*100),
+        `Key: ${entry.camelot} → ${next.camelot}  |  Score: ${camelotScore(entry.camelot,next.camelot)+bpmScore(entry.bpm,next.bpm)}/6`
+      );
+
+      // Animate crossfader over xfadeDuration
+      const steps=60, stepTime=xfadeDuration/steps;
+      for(let s=0;s<=steps;s++){
+        if(autoDJCancel) break;
+        const t=s/steps;
+        const xf=xfStart+(xfEnd-xfStart)*smoothStep(t);
+        document.getElementById('crossfader').value=xf;
+        updateCrossfader(xf);
+        // Gradually bring bass back on incoming deck
+        if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value=-10+(10*t);
+        // Cut bass on outgoing deck
+        if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value=-10*t;
+        await sleep(stepTime);
+      }
+
+      // Stop outgoing deck after crossfade
+      if(!autoDJCancel) pauseDeck(deckId);
+      // Reset EQ
+      if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value=0;
+      if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value=0;
+
+    } else {
+      // Last track — play to end
+      setAutoDJStatus('Playing final track...', 90, entry.name);
+      await sleep(Math.max(4000, entry.duration*1000*0.8));
+    }
+
+    const qi2=document.getElementById(`qi-${idx}`);
+    if(qi2){qi2.classList.remove('playing-now');qi2.classList.add('done');}
+  }
+
+  // Fade out master
+  if(!autoDJCancel){
+    setAutoDJStatus('Fading out...', 95, 'Almost done!');
+    if(masterGainNode){
+      masterGainNode.gain.linearRampToValueAtTime(0, getCtx().currentTime+2);
+      await sleep(2500);
+      masterGainNode.gain.value=1;
+    }
+  }
+
+  // Stop recording
+  autoDJRecorder.stop();
+  await sleep(300);
+
+  if(!autoDJCancel){
+    setAutoDJStatus('✅ Mix complete! Click Download to save your mix.', 100, `${queue.length} tracks mixed`);
+    document.getElementById('auto-dj-done-btn').style.display='inline-block';
+    document.getElementById('export-mix-btn').style.display='inline-block';
+    recordedChunks=autoDJChunks;
+    toast('🎉 Auto DJ mix complete! Download your mix.');
+  }
+  autoDJActive=false;
+}
+
+function setAutoDJStatus(status, pct, track){
+  document.getElementById('auto-dj-status').textContent=status;
+  document.getElementById('auto-dj-big-fill').style.width=pct+'%';
+  document.getElementById('auto-dj-track-info').textContent=track;
+}
+
+function cancelAutoDJ(){
+  autoDJCancel=true; autoDJActive=false;
+  if(autoDJRecorder&&autoDJRecorder.state!=='inactive') autoDJRecorder.stop();
+  document.getElementById('auto-dj-overlay').classList.remove('show');
+  ['a','b'].forEach(id=>{ try{pauseDeck(id)}catch(e){} });
+  toast('Auto DJ cancelled.');
+}
+
+function finishAutoDJ(){
+  document.getElementById('auto-dj-overlay').classList.remove('show');
+  recordedChunks=autoDJChunks;
+  downloadMix();
+}
+
+// Smooth step easing (S-curve)
+function smoothStep(t){ return t*t*(3-2*t); }
+function sleep(ms){ return new Promise(r=>setTimeout(r,ms)); }
 
 // Keyboard shortcuts
 document.addEventListener('keydown', e=>{
