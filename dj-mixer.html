@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ProMix DJ Studio — Ultimate Party Mixer</title>
+<script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.1/lame.min.js"></script>
 <style>
 :root {
   --bg: #0a0a0f;
@@ -336,8 +337,18 @@ body{display:flex;flex-direction:column}
     <span id="bulk-title">🎛 BULK QUEUE &amp; AUTO DJ</span>
     <div id="bulk-actions">
       <button class="bulk-btn" id="sort-queue-btn" onclick="smartSortQueue()">🧠 Smart Sort</button>
+      <select id="autodj-mode" style="background:var(--bg4);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:.78rem;cursor:pointer">
+        <option value="fast">⚡ Fast Mode (silent render, seconds)</option>
+        <option value="live">🔊 Live Mode (hear music, real-time)</option>
+      </select>
+      <select id="xfade-sec" style="background:var(--bg4);color:var(--text);border:1px solid var(--border);border-radius:6px;padding:5px 8px;font-size:.78rem;cursor:pointer">
+        <option value="4">4 sec crossfade</option>
+        <option value="8" selected>8 sec crossfade</option>
+        <option value="16">16 sec crossfade</option>
+        <option value="32">32 sec crossfade</option>
+      </select>
       <button class="bulk-btn" id="auto-dj-btn" onclick="startAutoDJ()" disabled>🚀 AUTO DJ MIX</button>
-      <button class="bulk-btn" id="export-mix-btn" onclick="downloadMix()" style="display:none">⬇ Download Full Mix</button>
+      <button class="bulk-btn" id="export-mix-btn" onclick="downloadMix()" style="display:none">⬇ Download MP3 Mix</button>
       <button class="bulk-btn" id="clear-queue-btn" onclick="clearQueue()">✕ Clear</button>
       <div id="bulk-progress-wrap">
         <div id="bulk-progress-bar"><div id="bulk-progress-fill"></div></div>
@@ -696,30 +707,50 @@ const mixer = { masterGain:null, crossfade:0.5, curve:'linear', fxDeck:'a' };
 const fx = { reverb:{active:false,wet:0.3,size:0.7}, delay:{active:false,time:0.3,fb:0.4},
              filter:{active:false,freq:1000,q:1}, flanger:{active:false,rate:0.5,depth:0.5},
              echo:{active:false,time:0.25} };
-let mediaRecorder = null, recordedChunks = [], isRecording = false;
+let isRecording = false;
 
 // Audio graph nodes
-let masterGainNode, fxBus = {};
+let masterGainNode, fxBus = {}, captureProcessor, dummyCaptureGain;
+let audioInitialized = false;
+// Live-recording state (ScriptProcessor → lamejs MP3)
+let mp3Encoder = null, mp3Chunks = [], isCapturing = false;
 
 // ═══════════════════════════════════════════════
 //  INIT AUDIO GRAPH
 // ═══════════════════════════════════════════════
 function initAudio(){
+  // Only build the audio graph once — calling again just resumes context
+  if(audioInitialized){ getCtx().resume(); return; }
+  audioInitialized = true;
+
   const c = getCtx();
   masterGainNode = c.createGain();
   masterGainNode.gain.value = 1;
   masterGainNode.connect(c.destination);
 
+  // ScriptProcessorNode for real-time MP3 capture (taps master output)
+  captureProcessor  = c.createScriptProcessor(4096, 2, 2);
+  dummyCaptureGain  = c.createGain(); dummyCaptureGain.gain.value = 0;
+  masterGainNode.connect(captureProcessor);
+  captureProcessor.connect(dummyCaptureGain);   // silent output — just keeps node alive
+  captureProcessor.onaudioprocess = (e) => {
+    if(!isCapturing || !mp3Encoder) return;
+    const L = e.inputBuffer.getChannelData(0);
+    const R = e.inputBuffer.numberOfChannels > 1 ? e.inputBuffer.getChannelData(1) : L;
+    const li = pcmFloat32ToInt16(L);
+    const ri = pcmFloat32ToInt16(R);
+    const buf = mp3Encoder.encodeBuffer(li, ri);
+    if(buf.length > 0) mp3Chunks.push(new Uint8Array(buf));
+  };
+
   // Init deck audio chains
   ['a','b'].forEach(id => {
     const d = decks[id];
-    d.gainNode = c.createGain();
-    d.gainNode.gain.value = 1;
+    d.gainNode = c.createGain(); d.gainNode.gain.value = 1;
     d.eqHi  = createEQBand(c, 'highshelf', 10000, 0);
     d.eqMid = createEQBand(c, 'peaking',   1000,  0);
     d.eqLo  = createEQBand(c, 'lowshelf',  200,   0);
-    d.analyser = c.createAnalyser();
-    d.analyser.fftSize = 2048;
+    d.analyser = c.createAnalyser(); d.analyser.fftSize = 2048;
     d.gainNode.connect(d.eqHi);
     d.eqHi.connect(d.eqMid);
     d.eqMid.connect(d.eqLo);
@@ -727,28 +758,46 @@ function initAudio(){
     d.analyser.connect(masterGainNode);
   });
 
-  // Init FX nodes
+  // FX nodes
   fxBus.reverbConvolver = c.createConvolver();
   fxBus.reverbConvolver.buffer = makeReverbBuffer(c, 2.5);
   fxBus.reverbGain = c.createGain(); fxBus.reverbGain.gain.value = 0;
   fxBus.reverbConvolver.connect(fxBus.reverbGain);
   fxBus.reverbGain.connect(masterGainNode);
 
-  fxBus.delayNode = c.createDelay(2);
-  fxBus.delayNode.delayTime.value = 0.3;
-  fxBus.delayFB = c.createGain(); fxBus.delayFB.gain.value = 0.4;
+  fxBus.delayNode = c.createDelay(2); fxBus.delayNode.delayTime.value = 0.3;
+  fxBus.delayFB   = c.createGain(); fxBus.delayFB.gain.value = 0.4;
   fxBus.delayGain = c.createGain(); fxBus.delayGain.gain.value = 0;
-  fxBus.delayNode.connect(fxBus.delayFB);
-  fxBus.delayFB.connect(fxBus.delayNode);
-  fxBus.delayNode.connect(fxBus.delayGain);
-  fxBus.delayGain.connect(masterGainNode);
+  fxBus.delayNode.connect(fxBus.delayFB); fxBus.delayFB.connect(fxBus.delayNode);
+  fxBus.delayNode.connect(fxBus.delayGain); fxBus.delayGain.connect(masterGainNode);
 
   fxBus.filterNode = c.createBiquadFilter();
-  fxBus.filterNode.type = 'bandpass';
-  fxBus.filterNode.frequency.value = 1000;
+  fxBus.filterNode.type = 'bandpass'; fxBus.filterNode.frequency.value = 1000;
   fxBus.filterGain = c.createGain(); fxBus.filterGain.gain.value = 0;
-  fxBus.filterNode.connect(fxBus.filterGain);
-  fxBus.filterGain.connect(masterGainNode);
+  fxBus.filterNode.connect(fxBus.filterGain); fxBus.filterGain.connect(masterGainNode);
+}
+
+// PCM helper used by the live MP3 encoder
+function pcmFloat32ToInt16(f32){
+  const out = new Int16Array(f32.length);
+  for(let i=0;i<f32.length;i++) out[i]=Math.max(-32768,Math.min(32767,f32[i]*32767|0));
+  return out;
+}
+
+// Start/stop real-time MP3 recording into mp3Chunks
+function startCapture(bitrate=192){
+  initAudio();
+  mp3Chunks = [];
+  mp3Encoder = new lamejs.Mp3Encoder(2, getCtx().sampleRate, bitrate);
+  isCapturing = true;
+}
+function stopCapture(){
+  isCapturing = false;
+  if(!mp3Encoder) return null;
+  const tail = mp3Encoder.flush();
+  if(tail.length > 0) mp3Chunks.push(new Uint8Array(tail));
+  mp3Encoder = null;
+  return new Blob(mp3Chunks, {type:'audio/mpeg'});
 }
 
 function createEQBand(c, type, freq, gain){
@@ -1391,37 +1440,33 @@ function initVU(){
 // ═══════════════════════════════════════════════
 //  RECORD & DOWNLOAD MIX
 // ═══════════════════════════════════════════════
+let lastMixBlob = null;  // holds the final MP3 blob for download
+
 function toggleRecord(){
   initAudio();
   const btn = document.getElementById('rec-btn');
   if(!isRecording){
-    const dest = getCtx().createMediaStreamDestination();
-    masterGainNode.connect(dest);
-    mediaRecorder = new MediaRecorder(dest.stream, {mimeType:'audio/webm;codecs=opus'});
-    recordedChunks = [];
-    mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
-    mediaRecorder.start(100);
+    startCapture(192);
     isRecording = true;
     btn.textContent = '⏹ STOP REC';
     btn.classList.add('recording');
-    toast('🔴 Recording started');
+    toast('🔴 Recording started — mix plays, MP3 captures in real time');
   } else {
-    mediaRecorder.stop();
+    lastMixBlob = stopCapture();
     isRecording = false;
     btn.textContent = '● REC';
     btn.classList.remove('recording');
-    toast('✅ Recording stopped — click Download Mix');
+    toast('✅ Recording stopped — click ⬇ Download Mix for MP3');
   }
 }
 
 function downloadMix(){
-  if(recordedChunks.length===0){ toast('Record something first!'); return; }
-  const blob = new Blob(recordedChunks, {type:'audio/webm'});
-  const url = URL.createObjectURL(blob);
+  if(!lastMixBlob){ toast('Nothing recorded yet — press ● REC first, then mix!'); return; }
+  const url = URL.createObjectURL(lastMixBlob);
   const a = document.createElement('a');
-  a.href = url; a.download = 'ProMix_'+Date.now()+'.webm';
+  a.href = url; a.download = 'ProMix_Mix_'+Date.now()+'.mp3';
   a.click(); URL.revokeObjectURL(url);
-  toast('⬇ Mix downloaded!');
+  toast('⬇ MP3 mix downloaded!');
 }
 
 // ═══════════════════════════════════════════════
@@ -1693,7 +1738,7 @@ document.getElementById('camelot-modal').addEventListener('click', e=>{
 
 const queue = [];   // [{file, name, buffer, bpm, key, camelot, duration, analyzed}]
 let autoDJActive = false, autoDJCancel = false;
-let autoDJRecorder = null, autoDJChunks = [];
+// autoDJ state (recorder replaced by ScriptProcessor+lamejs in initAudio)
 
 // ─── DROP ZONE ───────────────────────────────
 function dzOver(e){ e.preventDefault(); document.getElementById('drop-zone').classList.add('drag-over'); }
@@ -1907,7 +1952,8 @@ function removeFromQueue(i){ queue.splice(i,1); renderQueue(); updateAutoDJBtn()
 
 function loadQueueToDeck(i,id){
   const entry=queue[i]; if(!entry) return;
-  initAudio();
+  // NOTE: do NOT call initAudio() here — it would recreate all audio nodes
+  // and break the recording capture chain. initAudio() is guarded anyway.
   const d=decks[id];
   if(d.source){try{d.source.stop()}catch(e){}}
   d.buffer=entry.buffer; d.isPlaying=false; d.startOffset=0; d.cuePoint=0;
@@ -1930,163 +1976,312 @@ function setProgress(pct,label){
 async function startAutoDJ(){
   if(queue.length<2){toast('Add at least 2 tracks!');return;}
   if(!queue.every(e=>e.analyzed)){toast('Still analyzing tracks, please wait...');return;}
+
   initAudio();
+  await getCtx().resume(); // ensure AudioContext is running (browser autoplay policy)
+
+  const mode = document.getElementById('autodj-mode').value;
+  if(mode==='fast'){
+    await startAutoDJFast();
+  } else {
+    await startAutoDJLive();
+  }
+}
+
+// ══════════════════════════════════════════════
+//  FAST MODE — OfflineAudioContext → MP3
+//  Renders entire mix silently in seconds
+// ══════════════════════════════════════════════
+async function startAutoDJFast(){
+  const XFADE   = parseFloat(document.getElementById('xfade-sec').value);
+  const overlay = document.getElementById('auto-dj-overlay');
+  autoDJActive=true; autoDJCancel=false;
+  overlay.classList.add('show');
+  setAutoDJStatus('⚡ Fast Mode — building mix schedule...', 5, '');
+  await sleep(50); // let UI update
+
+  // ── Schedule all tracks ──────────────────────
+  let cursor = 0;
+  const schedules = [];
+  for(let i=0;i<queue.length;i++){
+    const entry = queue[i];
+    const prev  = queue[i-1];
+    // Pitch ratio for BPM sync (clamped to ±15%)
+    let rate = 1;
+    if(i>0 && prev.bpm>0 && entry.bpm>0){
+      rate = prev.bpm / entry.bpm;
+      rate = Math.max(0.85, Math.min(1.15, rate));
+    }
+    const scaledDur = entry.duration / rate;
+    const startTime = cursor;
+    schedules.push({entry, startTime, scaledDur, rate});
+    cursor = startTime + Math.max(scaledDur - XFADE, scaledDur * 0.5);
+  }
+  const totalDuration = schedules[schedules.length-1].startTime + schedules[schedules.length-1].scaledDur + 1;
+
+  setAutoDJStatus(`Rendering ${formatTime(totalDuration)} mix offline...`, 10,
+    `${queue.length} tracks · ${XFADE}s crossfades`);
+  await sleep(80);
+
+  // ── Build OfflineAudioContext ────────────────
+  const SR  = getCtx().sampleRate;
+  const offCtx = new OfflineAudioContext(2, Math.ceil(totalDuration * SR), SR);
+
+  for(let i=0;i<schedules.length;i++){
+    if(autoDJCancel){ offCtx.suspend && offCtx.suspend(0); break; }
+    const {entry, startTime, scaledDur, rate} = schedules[i];
+    const isFirst = i===0, isLast = i===schedules.length-1;
+
+    const src  = offCtx.createBufferSource();
+    src.buffer = entry.buffer;
+    src.playbackRate.value = rate;
+
+    const gain = offCtx.createGain();
+
+    // Low-cut on incoming track (pre-mix EQ)
+    const loFilter = offCtx.createBiquadFilter();
+    loFilter.type = 'highpass'; loFilter.frequency.value = 80;
+
+    // Gain envelope: fade in then fade out
+    const fadeIn  = isFirst ? 0.5 : XFADE;
+    const fadeOut = isLast  ? 2   : XFADE;
+    gain.gain.setValueAtTime(0, startTime);
+    gain.gain.linearRampToValueAtTime(1, startTime + Math.min(fadeIn, scaledDur * 0.5));
+    if(scaledDur - fadeOut > fadeIn){
+      gain.gain.setValueAtTime(1, startTime + scaledDur - fadeOut);
+    }
+    gain.gain.linearRampToValueAtTime(0, startTime + scaledDur);
+
+    src.connect(loFilter);
+    loFilter.connect(gain);
+    gain.connect(offCtx.destination);
+    src.start(startTime);
+    src.stop(startTime + scaledDur);
+
+    setAutoDJStatus(
+      `Scheduling ${i+1}/${queue.length}: ${entry.name}`,
+      10 + Math.round((i/queue.length)*40),
+      `Start: ${formatTime(startTime)} · Duration: ${formatTime(scaledDur)} · Rate: ${rate.toFixed(3)}x`
+    );
+    await sleep(30); // keep UI responsive
+  }
+
+  if(autoDJCancel){ overlay.classList.remove('show'); autoDJActive=false; return; }
+
+  setAutoDJStatus('Rendering audio... (this takes a few seconds)', 50, 'Please wait — OfflineAudioContext rendering');
+  await sleep(80);
+
+  let renderedBuf;
+  try {
+    renderedBuf = await offCtx.startRendering();
+  } catch(e){
+    toast('❌ Render failed: '+e.message);
+    overlay.classList.remove('show'); autoDJActive=false; return;
+  }
+
+  if(autoDJCancel){ overlay.classList.remove('show'); autoDJActive=false; return; }
+
+  setAutoDJStatus('Encoding to MP3...', 75, `${formatTime(renderedBuf.duration)} of audio to encode`);
+  await sleep(80);
+
+  // ── Encode rendered buffer to MP3 ───────────
+  const enc = new lamejs.Mp3Encoder(2, SR, 192);
+  const L32 = renderedBuf.getChannelData(0);
+  const R32 = renderedBuf.numberOfChannels>1 ? renderedBuf.getChannelData(1) : L32;
+  const BLOCK = 1152;
+  const chunks = [];
+  const totalBlocks = Math.ceil(L32.length / BLOCK);
+
+  for(let b=0;b<totalBlocks;b++){
+    if(autoDJCancel) break;
+    const li = pcmFloat32ToInt16(L32.subarray(b*BLOCK, (b+1)*BLOCK));
+    const ri = pcmFloat32ToInt16(R32.subarray(b*BLOCK, (b+1)*BLOCK));
+    const out = enc.encodeBuffer(li, ri);
+    if(out.length>0) chunks.push(new Uint8Array(out));
+    // Update progress every 500 blocks
+    if(b%500===0){
+      setAutoDJStatus('Encoding to MP3...', 75+Math.round((b/totalBlocks)*20),
+        `Encoding: ${Math.round(b/totalBlocks*100)}%`);
+      await sleep(0); // yield to UI
+    }
+  }
+  const tail = enc.flush();
+  if(tail.length>0) chunks.push(new Uint8Array(tail));
+
+  lastMixBlob = new Blob(chunks, {type:'audio/mpeg'});
+  setAutoDJStatus('✅ Fast Mix complete!', 100,
+    `${formatTime(renderedBuf.duration)} · ${queue.length} tracks · MP3 ready`);
+  document.getElementById('auto-dj-done-btn').style.display='inline-block';
+  document.getElementById('export-mix-btn').style.display='inline-block';
+  autoDJActive=false;
+  toast('🎉 Fast Mix done! Click Download MP3 Mix to save.');
+
+  // Mark queue items done
+  queue.forEach((_,i)=>{
+    const qi=document.getElementById(`qi-${i}`);
+    if(qi){qi.classList.remove('playing-now');qi.classList.add('done');}
+  });
+}
+
+// ══════════════════════════════════════════════
+//  LIVE MODE — real-time playback + MP3 capture
+//  You hear the music; ScriptProcessor encodes MP3
+// ══════════════════════════════════════════════
+async function startAutoDJLive(){
+  const XFADE_SEC = parseFloat(document.getElementById('xfade-sec').value);
 
   autoDJActive=true; autoDJCancel=false;
-  autoDJChunks=[];
   const overlay=document.getElementById('auto-dj-overlay');
   overlay.classList.add('show');
-  setAutoDJStatus('Setting up mix engine...', 0, '');
+  setAutoDJStatus('🔊 Live Mode — starting real-time MP3 recording...', 0, '');
+  await sleep(100);
 
-  // Start recording the master output
-  const dest=getCtx().createMediaStreamDestination();
-  masterGainNode.connect(dest);
-  autoDJRecorder=new MediaRecorder(dest.stream,{mimeType:'audio/webm;codecs=opus'});
-  autoDJRecorder.ondataavailable=e=>{if(e.data.size>0) autoDJChunks.push(e.data);};
-  autoDJRecorder.start(100);
+  // Start real-time MP3 capture BEFORE anything plays
+  startCapture(192);
 
-  const CROSSFADE_BEATS = 8;     // how many beats to crossfade
-  const TAIL_BEATS      = 4;     // how many beats before end to start crossfade-out
-  const LEAD_IN_BEATS   = 4;     // how many beats into track B to begin
+  // Reset crossfader and volumes
+  document.getElementById('crossfader').value = 0.5;
+  updateCrossfader(0.5);
 
   for(let idx=0;idx<queue.length;idx++){
     if(autoDJCancel) break;
-    const entry = queue[idx];
-    const next  = queue[idx+1];
-    const isLast= idx===queue.length-1;
+    const entry  = queue[idx];
+    const next   = queue[idx+1];
+    const isLast = idx===queue.length-1;
+    const deckId    = idx%2===0 ? 'a' : 'b';
+    const otherDeck = deckId==='a' ? 'b' : 'a';
 
-    // Mark as now playing
+    // Highlight current in queue
     document.querySelectorAll('.queue-item').forEach(el=>el.classList.remove('playing-now'));
     const qi=document.getElementById(`qi-${idx}`);
     if(qi) qi.classList.add('playing-now');
 
-    setAutoDJStatus(
-      `Mixing track ${idx+1} of ${queue.length}`,
-      Math.round((idx/queue.length)*100),
-      `▶  ${entry.name}${next?' → '+next.name:''}`
-    );
-
-    // Load to deck A (or B alternating)
-    const deckId = idx%2===0?'a':'b';
-    const otherDeck = deckId==='a'?'b':'a';
+    // Load track (does NOT call initAudio)
     loadQueueToDeck(idx, deckId);
-    await sleep(100);
+    await sleep(50);
 
-    // Sync BPM: pitch deckId to match otherDeck if we have a previous track
+    // BPM sync pitch
     if(idx>0 && decks[otherDeck].bpm && entry.bpm){
       const ratio=decks[otherDeck].bpm/entry.bpm;
-      const pct=(ratio-1)*100;
-      const clamped=Math.max(-8,Math.min(8,pct));
-      document.getElementById(`pitch-${deckId}`).value=clamped;
-      setPitch(deckId,clamped);
+      const pct=Math.max(-8,Math.min(8,(ratio-1)*100));
+      document.getElementById(`pitch-${deckId}`).value=pct;
+      setPitch(deckId,pct);
+    } else {
+      document.getElementById(`pitch-${deckId}`).value=0;
+      setPitch(deckId,0);
     }
 
-    // EQ: pre-cut bass on incoming deck
-    if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value=-10;
+    // Pre-cut bass on incoming deck
+    if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value = -10;
 
-    // Set crossfader fully to outgoing deck
-    const xfStart = deckId==='a' ? 1 : 0;
-    const xfEnd   = deckId==='a' ? 0 : 1;
-    document.getElementById('crossfader').value=xfStart;
-    updateCrossfader(xfStart);
+    // Crossfader: fully on outgoing deck (or center for first track)
+    if(idx===0){
+      document.getElementById('crossfader').value = deckId==='a' ? 0 : 1;
+      updateCrossfader(deckId==='a' ? 0 : 1);
+    }
 
-    // Play incoming deck
     playDeck(deckId);
 
     if(idx===0){
-      // First track: just play, no crossfade needed yet
-      await sleep(300);
+      // First track: fade crossfader in from silence to deck A
+      for(let s=0;s<=20;s++){
+        const xf = s/20;
+        document.getElementById('crossfader').value = xf * (deckId==='a'?0:1) + (1-xf)*0.5;
+        updateCrossfader(parseFloat(document.getElementById('crossfader').value));
+        await sleep(30);
+      }
+      document.getElementById('crossfader').value = deckId==='a'?0:1;
+      updateCrossfader(deckId==='a'?0:1);
+      // Bring bass back
+      if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value=0;
     }
 
-    // Calculate crossfade start time
-    const beatDuration   = entry.bpm>0 ? 60/entry.bpm : 0.5;
-    const xfadeDuration  = Math.max(4, CROSSFADE_BEATS*beatDuration)*1000; // ms
-    const playDuration   = Math.max(8000, (entry.duration - (TAIL_BEATS+LEAD_IN_BEATS)*beatDuration)*1000);
+    // How long to play before crossfading out
+    const playMs = isLast
+      ? Math.max(4000, entry.duration*1000 - 2000)
+      : Math.max(XFADE_SEC*2000, entry.duration*1000 - XFADE_SEC*1000);
+
+    // Show live countdown
+    const startWall = Date.now();
+    const trackPct  = idx/queue.length;
+    const updateInterval = setInterval(()=>{
+      if(autoDJCancel){ clearInterval(updateInterval); return; }
+      const elapsed = (Date.now()-startWall)/1000;
+      const remain  = Math.max(0,(playMs/1000)-elapsed);
+      setAutoDJStatus(
+        `▶ Playing ${idx+1}/${queue.length}: ${entry.name}`,
+        Math.round((trackPct + (elapsed/(playMs/1000))*(1/queue.length))*100),
+        `Time remaining on track: ${formatTime(remain)}${next?' · Next: '+next.name:''}`
+      );
+    }, 500);
+
+    await sleep(playMs);
+    clearInterval(updateInterval);
+    if(autoDJCancel) break;
 
     if(!isLast){
-      setAutoDJStatus(
-        `Playing: ${entry.name}`,
-        Math.round(((idx+0.3)/queue.length)*100),
-        `Next: ${next.name}`
-      );
-
-      // Wait until near end of track
-      await sleep(playDuration);
-      if(autoDJCancel) break;
-
-      // Load next track to other deck
+      // Load next deck
       loadQueueToDeck(idx+1, otherDeck);
-      await sleep(100);
+      await sleep(50);
       if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value=-10;
 
-      // Sync next track BPM to current
+      // BPM sync next deck
       if(next.bpm && entry.bpm){
         const ratio=entry.bpm/next.bpm;
-        const pct=(ratio-1)*100;
-        const clamped=Math.max(-8,Math.min(8,pct));
-        document.getElementById(`pitch-${otherDeck}`).value=clamped;
-        setPitch(otherDeck,clamped);
+        const pct=Math.max(-8,Math.min(8,(ratio-1)*100));
+        document.getElementById(`pitch-${otherDeck}`).value=pct;
+        setPitch(otherDeck,pct);
       }
 
-      // Start next deck
       playDeck(otherDeck);
       setAutoDJStatus(
-        `Crossfading: ${entry.name} → ${next.name}`,
-        Math.round(((idx+0.6)/queue.length)*100),
-        `Key: ${entry.camelot} → ${next.camelot}  |  Score: ${camelotScore(entry.camelot,next.camelot)+bpmScore(entry.bpm,next.bpm)}/6`
+        `⟳ Crossfading: ${entry.name} → ${next.name}`,
+        Math.round(((idx+0.8)/queue.length)*100),
+        `Key: ${entry.camelot||'?'} → ${next.camelot||'?'}  ·  Score: ${camelotScore(entry.camelot,next.camelot)+bpmScore(entry.bpm,next.bpm)}/6`
       );
 
-      // Animate crossfader over xfadeDuration
-      const steps=60, stepTime=xfadeDuration/steps;
+      // Animate crossfader (S-curve)
+      const xfStart = deckId==='a' ? 0 : 1;
+      const xfEnd   = deckId==='a' ? 1 : 0;
+      const steps   = 80;
+      const stepMs  = (XFADE_SEC*1000)/steps;
       for(let s=0;s<=steps;s++){
         if(autoDJCancel) break;
-        const t=s/steps;
-        const xf=xfStart+(xfEnd-xfStart)*smoothStep(t);
+        const t  = s/steps;
+        const st = smoothStep(t);
+        const xf = xfStart + (xfEnd-xfStart)*st;
         document.getElementById('crossfader').value=xf;
         updateCrossfader(xf);
-        // Gradually bring bass back on incoming deck
-        if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value=-10+(10*t);
-        // Cut bass on outgoing deck
-        if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value=-10*t;
-        await sleep(stepTime);
+        // EQ crossfade: bring bass in on incoming, cut on outgoing
+        if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value = -10+(10*st);
+        if(decks[deckId].eqLo)    decks[deckId].eqLo.gain.value    = -(10*st);
+        await sleep(stepMs);
       }
 
-      // Stop outgoing deck after crossfade
-      if(!autoDJCancel) pauseDeck(deckId);
-      // Reset EQ
-      if(decks[deckId].eqLo) decks[deckId].eqLo.gain.value=0;
-      if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value=0;
-
-    } else {
-      // Last track — play to end
-      setAutoDJStatus('Playing final track...', 90, entry.name);
-      await sleep(Math.max(4000, entry.duration*1000*0.8));
+      pauseDeck(deckId);
+      if(decks[deckId].eqLo)    decks[deckId].eqLo.gain.value    = 0;
+      if(decks[otherDeck].eqLo) decks[otherDeck].eqLo.gain.value = 0;
     }
 
     const qi2=document.getElementById(`qi-${idx}`);
     if(qi2){qi2.classList.remove('playing-now');qi2.classList.add('done');}
   }
 
-  // Fade out master
-  if(!autoDJCancel){
-    setAutoDJStatus('Fading out...', 95, 'Almost done!');
-    if(masterGainNode){
-      masterGainNode.gain.linearRampToValueAtTime(0, getCtx().currentTime+2);
-      await sleep(2500);
-      masterGainNode.gain.value=1;
-    }
+  // Fade master out
+  if(!autoDJCancel && masterGainNode){
+    setAutoDJStatus('Fading out...', 97, '');
+    masterGainNode.gain.linearRampToValueAtTime(0, getCtx().currentTime+2);
+    await sleep(2200);
+    masterGainNode.gain.value=1;
   }
 
-  // Stop recording
-  autoDJRecorder.stop();
-  await sleep(300);
-
+  // Stop and encode final MP3
+  lastMixBlob = stopCapture();
   if(!autoDJCancel){
-    setAutoDJStatus('✅ Mix complete! Click Download to save your mix.', 100, `${queue.length} tracks mixed`);
+    setAutoDJStatus('✅ Live Mix recorded!', 100, `${queue.length} tracks · MP3 ready to download`);
     document.getElementById('auto-dj-done-btn').style.display='inline-block';
     document.getElementById('export-mix-btn').style.display='inline-block';
-    recordedChunks=autoDJChunks;
-    toast('🎉 Auto DJ mix complete! Download your mix.');
+    toast('🎉 Auto DJ live mix complete! Download your MP3.');
   }
   autoDJActive=false;
 }
@@ -2099,15 +2294,15 @@ function setAutoDJStatus(status, pct, track){
 
 function cancelAutoDJ(){
   autoDJCancel=true; autoDJActive=false;
-  if(autoDJRecorder&&autoDJRecorder.state!=='inactive') autoDJRecorder.stop();
+  isCapturing=false; mp3Encoder=null; mp3Chunks=[];
   document.getElementById('auto-dj-overlay').classList.remove('show');
   ['a','b'].forEach(id=>{ try{pauseDeck(id)}catch(e){} });
+  if(masterGainNode) masterGainNode.gain.value=1;
   toast('Auto DJ cancelled.');
 }
 
 function finishAutoDJ(){
   document.getElementById('auto-dj-overlay').classList.remove('show');
-  recordedChunks=autoDJChunks;
   downloadMix();
 }
 
