@@ -1,4 +1,4 @@
-## 💎 JozEZ Finder 1.2.1
+## 💎 JozEZ Finder 1.2.2
 
 Find anything on every drive and computer you own, by name or by the words inside, in milliseconds.
 
@@ -14,3 +14,9 @@ Buy a license: https://jozezedu.lemonsqueezy.com
 - Fixed: computers could not connect after switching on "Share this computer" (the engine now restarts itself automatically).
 - Fixed: Restart engine button.
 - Clearer connection error messages (wrong PIN, firewall, etc.).
+
+### 1.2.2
+- Move / delete: much sturdier on Mac and Windows, with plain-English fixes when the system blocks a change.
+- Error messages now stay on screen (with a Copy button) until you close them.
+- New: Settings > About > Test move & delete, and Show recent problems.
+- Automatically replaces older JozEZ Finder engines and repairs start-at-login.
